@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 // 
 // Version : 12-8 (05 feb 26); 
 // Name    : The101Box Yaesu FTDX101 @ COM8
-
+ 
 
 namespace The101Box
 

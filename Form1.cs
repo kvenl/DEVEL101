@@ -9,8 +9,8 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
-// Version : 14-4 (05 feb 26); 
-// Name    : The101Box Yaesu FTDX101 @ COM4
+// Version : 14-8 (05 feb 26); 
+// Name    : The101Box Yaesu FTDX101 @ COM8
 
 
 namespace The101Box
@@ -29,7 +29,7 @@ namespace The101Box
             InitializeComponent();
 
             // Increase form width to accommodate sliders
-            this.ClientSize = new Size(950, 125);
+            // this.ClientSize = new Size(950, 125);  // Removed: now set in designer to 934
 
             // Attach event handlers for sliders
             rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
@@ -51,7 +51,7 @@ namespace The101Box
             // Rechterknop RX1+RX2 uit op 
             RX12B.MouseDown += RX12B_MouseDown;
 
-            Serial_Port = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.Two)
+            Serial_Port = new SerialPort("COM8", 38400, Parity.None, 8, StopBits.Two)
             {
                 Handshake = Handshake.None,
                 RtsEnable = true,
@@ -273,6 +273,40 @@ namespace The101Box
                     Bar = Bar.Length < 7 ? Bar + Blokje : Blokje;
                     UpdateTextBox(TIJDSTIP_box, Bar);
 
+                    // Sync sliders with radio values
+                    // Detach event handlers to prevent sending commands when setting values
+                    rfGainTrackBar.ValueChanged -= RfGainTrackBar_ValueChanged;
+                    volumeGainTrackBar.ValueChanged -= VolumeGainTrackBar_ValueChanged;
+
+                    // Read and set RF gain slider (inverted)
+                    IssueCmd("RG0;");
+                    temp = Serial_Port.ReadTo(";");
+                    if (temp.Length >= 5)
+                    {
+                        string rgValueStr = temp.Substring(3, 3);
+                        if (int.TryParse(rgValueStr, out int rgValue))
+                        {
+                            int sliderValue = rfGainTrackBar.Maximum - rgValue;
+                            rfGainTrackBar.Value = Math.Max(rfGainTrackBar.Minimum, Math.Min(rfGainTrackBar.Maximum, sliderValue));
+                        }
+                    }
+
+                    // Read and set volume slider
+                    IssueCmd("AG0;");
+                    temp = Serial_Port.ReadTo(";");
+                    if (temp.Length >= 5)
+                    {
+                        string agValueStr = temp.Substring(3, 3);
+                        if (int.TryParse(agValueStr, out int agValue))
+                        {
+                            volumeGainTrackBar.Value = Math.Max(volumeGainTrackBar.Minimum, Math.Min(volumeGainTrackBar.Maximum, agValue));
+                        }
+                    }
+
+                    // Reattach event handlers
+                    rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
+                    volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
+
                     await Task.Delay(100, cts.Token);
                 }
                 catch (Exception ex)
@@ -410,14 +444,15 @@ namespace The101Box
 
         private void RfGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
-            string value = ((TrackBar)sender).Value.ToString("D3");
+            int invertedValue = rfGainTrackBar.Maximum - rfGainTrackBar.Value;
+            string value = invertedValue.ToString("D3");
             IssueCmd($"RG0{value};");
         }
 
         private void VolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
             string value = ((TrackBar)sender).Value.ToString("D3");
-            IssueCmd($"AF0{value};");
+            IssueCmd($"AG0{value};");
         }
     }
 }

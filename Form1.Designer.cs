@@ -1,5 +1,4 @@
-﻿
-namespace The101Box
+﻿namespace The101Box
 {
     partial class MainForm
     {
@@ -129,7 +128,7 @@ namespace The101Box
             TuneButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             TuneButton.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold);
             TuneButton.ForeColor = System.Drawing.Color.Yellow;
-            TuneButton.Location = new System.Drawing.Point(756, 0);
+            TuneButton.Location = new System.Drawing.Point(756, 1);
             TuneButton.Name = "TuneButton";
             TuneButton.Size = new System.Drawing.Size(85, 124);
             TuneButton.TabIndex = 8;
@@ -672,7 +671,7 @@ namespace The101Box
             rfGainTrackBar.TabIndex = 42;
             rfGainTrackBar.TickFrequency = 16;
             rfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
-            rfGainTrackBar.Value = 128;
+            rfGainTrackBar.Value = 255;
             // 
             // volumeGainTrackBar
             // 
@@ -692,7 +691,7 @@ namespace The101Box
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.Black;
-            ClientSize = new System.Drawing.Size(935, 125);
+            ClientSize = new System.Drawing.Size(934, 125);
             Controls.Add(volumeGainTrackBar);
             Controls.Add(rfGainTrackBar);
             Controls.Add(FixB);
@@ -741,7 +740,7 @@ namespace The101Box
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "MainForm";
-            Text = "The101Box v 13 - by Kees, ON9KVE - COM4";
+            Text = "The101Box v 14 - by Kees, ON9KVE - COM8";
             TransparencyKey = System.Drawing.Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();

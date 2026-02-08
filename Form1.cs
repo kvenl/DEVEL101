@@ -47,9 +47,10 @@ namespace The101Box
             TuneButton.FlatAppearance.BorderColor = Color.White; // Set border color
             TuneButton.Paint += TuneButton_Paint;
 
-
             // Rechterknop RX1+RX2 uit op 
             RX12B.MouseDown += RX12B_MouseDown;
+            VCTOGGLE.MouseClick += VCTOGGLE_click;
+            RFTOGGLE.MouseClick += RFB_click;
 
             Serial_Port = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.Two)
             {
@@ -154,6 +155,21 @@ namespace The101Box
                         RfsqlD = "RF";
                     }
 
+                    // New VC read block: Poll and display VC state (mirrors RFSQL logic)
+                    IssueCmd("VT0;");
+                    temp = Serial_Port.ReadTo(";");
+                    if (temp.Length >= 8)  // VT + 5 digits + ;
+                    {
+                        char statusChar = temp[3];  // Fourth character (index 3) is the status: 0=off, 1=on
+                        string vcDisplay = statusChar == '1' ? "VC on" : "VC off";
+                        vcOn = statusChar == '1';  // Sync the toggle state variable for consistency
+                        UpdateTextBox(VC_box, vcDisplay);
+                    }
+                    else
+                    {
+                        UpdateTextBox(VC_box, "VC ???");
+                    }
+
                     IssueCmd("SS06;");
                     temp = Serial_Port.ReadTo(";");
                     if (temp.Length >= 5)
@@ -251,7 +267,7 @@ namespace The101Box
                         "FR01" => "RX 1",
                         "FR10" => "RX 2",
                         "FR00" => "RX 1 + 2",
-                        "FR11" => "RXs OFF",
+                        "FR11" => "RXs off",
                         _ => "???"
                     };
 
@@ -370,8 +386,6 @@ namespace The101Box
             Thread.Sleep(6); // Increased to 60 ms to match other working programs' timing
         }
 
-        private void VN_on(object sender, MouseEventArgs e) { IssueCmd("VT0100;"); }
-        private void VC_off(object sender, MouseEventArgs e) { IssueCmd("VT0000;"); }
         private void RFB_click(object sender, MouseEventArgs e)
         {
             rfSqlOn = !rfSqlOn;
@@ -483,13 +497,13 @@ namespace The101Box
             vcOn = !vcOn;
             if (vcOn)
             {
-                IssueCmd("VT0100;"); // VC on
-                VCTOGGLE.Text = "VC on";
+                IssueCmd("VT01;"); // VC on (main receiver)
+                VC_box.Text = "VC on";
             }
             else
             {
-                IssueCmd("VT0000;"); // VC off
-                VCTOGGLE.Text = "VC off";
+                IssueCmd("VT00;"); // VC off (main receiver)
+                VC_box.Text = "VC off";
             }
         }
     }

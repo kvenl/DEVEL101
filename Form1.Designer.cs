@@ -264,7 +264,6 @@
             VCTOGGLE.TabIndex = 18;
             VCTOGGLE.Text = "VC TUNE";
             VCTOGGLE.UseVisualStyleBackColor = false;
-            VCTOGGLE.MouseClick += VC_off;
             // 
             // RFTOGGLE
             // 

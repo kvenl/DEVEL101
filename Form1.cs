@@ -9,8 +9,8 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
-// Version : 15-4 (05 feb 26); 
-// Name    : The101Box Yaesu FTDX101 @ COM4
+// Version : 15-8 (09 feb 26); 
+// Name    : The101Box Yaesu FTDX101 @ COM8
 
 
 namespace The101Box
@@ -46,10 +46,9 @@ namespace The101Box
 
             // Rechterknop RX1+RX2 uit op 
             RX12B.MouseDown += RX12B_MouseDown;
-            VCTOGGLE.MouseClick += VCTOGGLE_click;
             RFTOGGLE.MouseClick += RFB_click;
 
-            Serial_Port = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.Two)
+            Serial_Port = new SerialPort("COM8", 38400, Parity.None, 8, StopBits.Two)
             {
                 Handshake = Handshake.None,
                 RtsEnable = true,
@@ -165,6 +164,9 @@ namespace The101Box
                         Dspspan = temp.Substring(4, 1);
                         DspspanD = Dspspan switch
                         {
+                            "9" => "1 M",
+                            "4" => "20k",
+                            "5" => "50k", 
                             "6" => "100k",
                             "7" => "200k",
                             "8" => "500k",
@@ -454,6 +456,11 @@ namespace The101Box
         private void SSB1_click(object sender, MouseEventArgs e) { IssueCmd("SS0560000;"); }
         private void SSB2_click(object sender, MouseEventArgs e) { IssueCmd("SS0570000;"); }
         private void SSB3_click(object sender, MouseEventArgs e) { IssueCmd("SS0580000;"); }
+        private void SSB4_click(object sender, MouseEventArgs e) { IssueCmd("SS0590000;"); }
+        private void SSB5_click(object sender, MouseEventArgs e) { IssueCmd("SS0540000;"); }
+        private void SSB6_click(object sender, MouseEventArgs e) { IssueCmd("SS0550000;"); }
+
+
         private void textBox1_TextChanged_1(object sender, EventArgs e) { }
         private void RX_box_TextChanged(object sender, EventArgs e) { }
         private void FixB_Click(object sender, EventArgs e) { }
@@ -506,6 +513,38 @@ namespace The101Box
         private void rfGainTrackBar_Scroll(object sender, EventArgs e)
         {
 
+        }
+
+        private void SubrfGainTrackBar_ValueChanged(object sender, EventArgs e)
+        {
+            int displayedValue = SubrfGainTrackBar.Value; // Directly use the slider value for display
+            string value = displayedValue.ToString("D3");
+            UpdateTextBox(textBox5, value); // Display the value in textBox5
+            IssueCmd($"RG1{(SubrfGainTrackBar.Maximum - displayedValue):D3};"); // Send inverted value to the radio
+        }
+
+        private void SubvolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
+        {
+            string value = ((TrackBar)sender).Value.ToString("D3");
+            UpdateTextBox(textBox5, value); // Display the value in textBox5
+            IssueCmd($"AG1{value};"); // Send the command with '1' as the third character
+        }
+
+        private void IntTune_Click(object sender, EventArgs e)
+        {
+            IssueCmd("AC002;"); // Start tuning
+            IssueCmd("AC001;"); // Set tuning on 
+
+        }
+
+        private void ItuneOn_Click(object sender, EventArgs e)
+        {
+            IssueCmd("AC001;"); // Turn internal tuner ON
+        }
+
+        private void ItuneOff_Click(object sender, EventArgs e)
+        {
+            IssueCmd("AC000;"); // Turn internal tuner OFF
         }
     }
 }

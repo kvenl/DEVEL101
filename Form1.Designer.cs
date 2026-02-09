@@ -70,21 +70,21 @@
             DIGB = new System.Windows.Forms.Button();
             SSB4 = new System.Windows.Forms.Button();
             SSB5 = new System.Windows.Forms.Button();
-            button2 = new System.Windows.Forms.Button();
+            SSB6 = new System.Windows.Forms.Button();
             IntTune = new System.Windows.Forms.Button();
             ItuneOn = new System.Windows.Forms.Button();
             ItuneOff = new System.Windows.Forms.Button();
             textBox4 = new System.Windows.Forms.TextBox();
-            trackBar1 = new System.Windows.Forms.TrackBar();
-            trackBar2 = new System.Windows.Forms.TrackBar();
+            SubrfGainTrackBar = new System.Windows.Forms.TrackBar();
+            SubvolumeGainTrackBar = new System.Windows.Forms.TrackBar();
             textBox5 = new System.Windows.Forms.TextBox();
             textBox6 = new System.Windows.Forms.TextBox();
             Exchange = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar2).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)SubrfGainTrackBar).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)SubvolumeGainTrackBar).BeginInit();
             SuspendLayout();
             // 
             // RFSQL_box
@@ -107,9 +107,9 @@
             // 
             TEMP_box.BackColor = System.Drawing.Color.Black;
             TEMP_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            TEMP_box.Font = new System.Drawing.Font("Verdana", 10F, System.Drawing.FontStyle.Bold);
+            TEMP_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             TEMP_box.ForeColor = System.Drawing.Color.Cyan;
-            TEMP_box.Location = new System.Drawing.Point(2, 103);
+            TEMP_box.Location = new System.Drawing.Point(20, 103);
             TEMP_box.Margin = new System.Windows.Forms.Padding(0);
             TEMP_box.Multiline = true;
             TEMP_box.Name = "TEMP_box";
@@ -546,7 +546,7 @@
             rfGainTrackBar.TickFrequency = 16;
             rfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
             rfGainTrackBar.Value = 255;
-            rfGainTrackBar.Scroll += rfGainTrackBar_Scroll;
+            rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
             // 
             // volumeGainTrackBar
             // 
@@ -630,7 +630,7 @@
             BUSY_box.BackColor = System.Drawing.Color.Black;
             BUSY_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             BUSY_box.ForeColor = System.Drawing.Color.FromArgb(64, 64, 64);
-            BUSY_box.Location = new System.Drawing.Point(60, 103);
+            BUSY_box.Location = new System.Drawing.Point(80, 105);
             BUSY_box.Margin = new System.Windows.Forms.Padding(1);
             BUSY_box.Multiline = true;
             BUSY_box.Name = "BUSY_box";
@@ -733,6 +733,7 @@
             SSB4.TabIndex = 52;
             SSB4.Text = "1 M";
             SSB4.UseVisualStyleBackColor = false;
+            SSB4.MouseClick += SSB4_click;
             // 
             // SSB5
             // 
@@ -748,21 +749,23 @@
             SSB5.TabIndex = 53;
             SSB5.Text = "20 k";
             SSB5.UseVisualStyleBackColor = false;
+            SSB5.MouseClick += SSB5_click;
             // 
-            // button2
+            // SSB6
             // 
-            button2.BackColor = System.Drawing.Color.DarkGreen;
-            button2.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            button2.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
-            button2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
-            button2.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            button2.ForeColor = System.Drawing.Color.Yellow;
-            button2.Location = new System.Drawing.Point(631, 0);
-            button2.Name = "button2";
-            button2.Size = new System.Drawing.Size(44, 35);
-            button2.TabIndex = 54;
-            button2.Text = "50 k";
-            button2.UseVisualStyleBackColor = false;
+            SSB6.BackColor = System.Drawing.Color.DarkGreen;
+            SSB6.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            SSB6.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            SSB6.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            SSB6.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            SSB6.ForeColor = System.Drawing.Color.Yellow;
+            SSB6.Location = new System.Drawing.Point(631, 0);
+            SSB6.Name = "SSB6";
+            SSB6.Size = new System.Drawing.Size(44, 35);
+            SSB6.TabIndex = 54;
+            SSB6.Text = "50 k";
+            SSB6.UseVisualStyleBackColor = false;
+            SSB6.MouseDown += SSB6_click;
             // 
             // IntTune
             // 
@@ -778,6 +781,7 @@
             IntTune.TabIndex = 55;
             IntTune.Text = "Int Tuner";
             IntTune.UseVisualStyleBackColor = false;
+            IntTune.Click += IntTune_Click;
             // 
             // ItuneOn
             // 
@@ -793,6 +797,7 @@
             ItuneOn.TabIndex = 56;
             ItuneOn.Text = "On";
             ItuneOn.UseVisualStyleBackColor = false;
+            ItuneOn.Click += ItuneOn_Click;
             // 
             // ItuneOff
             // 
@@ -808,6 +813,7 @@
             ItuneOff.TabIndex = 57;
             ItuneOff.Text = "Off";
             ItuneOff.UseVisualStyleBackColor = false;
+            ItuneOff.Click += ItuneOff_Click;
             // 
             // textBox4
             // 
@@ -824,31 +830,32 @@
             textBox4.Text = "<INT TUN>";
             textBox4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // trackBar1
+            // SubrfGainTrackBar
             // 
-            trackBar1.BackColor = System.Drawing.Color.DarkBlue;
-            trackBar1.Location = new System.Drawing.Point(915, 1);
-            trackBar1.Maximum = 255;
-            trackBar1.Name = "trackBar1";
-            trackBar1.Orientation = System.Windows.Forms.Orientation.Vertical;
-            trackBar1.Size = new System.Drawing.Size(45, 102);
-            trackBar1.TabIndex = 59;
-            trackBar1.TickFrequency = 16;
-            trackBar1.TickStyle = System.Windows.Forms.TickStyle.Both;
-            trackBar1.Value = 255;
+            SubrfGainTrackBar.BackColor = System.Drawing.Color.DarkBlue;
+            SubrfGainTrackBar.Location = new System.Drawing.Point(915, 1);
+            SubrfGainTrackBar.Maximum = 255;
+            SubrfGainTrackBar.Name = "SubrfGainTrackBar";
+            SubrfGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            SubrfGainTrackBar.Size = new System.Drawing.Size(45, 102);
+            SubrfGainTrackBar.TabIndex = 59;
+            SubrfGainTrackBar.TickFrequency = 16;
+            SubrfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            SubrfGainTrackBar.Value = 255;
+            SubrfGainTrackBar.ValueChanged += SubrfGainTrackBar_ValueChanged;
             // 
-            // trackBar2
+            // SubvolumeGainTrackBar
             // 
-            trackBar2.BackColor = System.Drawing.Color.DarkBlue;
-            trackBar2.Location = new System.Drawing.Point(964, 1);
-            trackBar2.Maximum = 255;
-            trackBar2.Name = "trackBar2";
-            trackBar2.Orientation = System.Windows.Forms.Orientation.Vertical;
-            trackBar2.Size = new System.Drawing.Size(45, 102);
-            trackBar2.TabIndex = 60;
-            trackBar2.TickFrequency = 16;
-            trackBar2.TickStyle = System.Windows.Forms.TickStyle.Both;
-            trackBar2.Value = 60;
+            SubvolumeGainTrackBar.BackColor = System.Drawing.Color.DarkBlue;
+            SubvolumeGainTrackBar.Location = new System.Drawing.Point(964, 1);
+            SubvolumeGainTrackBar.Maximum = 255;
+            SubvolumeGainTrackBar.Name = "SubvolumeGainTrackBar";
+            SubvolumeGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            SubvolumeGainTrackBar.Size = new System.Drawing.Size(45, 102);
+            SubvolumeGainTrackBar.TabIndex = 60;
+            SubvolumeGainTrackBar.TickFrequency = 16;
+            SubvolumeGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            SubvolumeGainTrackBar.ValueChanged += SubvolumeGainTrackBar_ValueChanged;
             // 
             // textBox5
             // 
@@ -891,13 +898,13 @@
             Exchange.FlatAppearance.BorderSize = 3;
             Exchange.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
             Exchange.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
-            Exchange.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold);
+            Exchange.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             Exchange.ForeColor = System.Drawing.Color.Yellow;
             Exchange.Location = new System.Drawing.Point(0, 68);
             Exchange.Name = "Exchange";
             Exchange.Size = new System.Drawing.Size(86, 35);
             Exchange.TabIndex = 63;
-            Exchange.Text = "<==>";
+            Exchange.Text = "< === >";
             Exchange.UseVisualStyleBackColor = false;
             // 
             // MainForm
@@ -909,13 +916,13 @@
             Controls.Add(Exchange);
             Controls.Add(textBox6);
             Controls.Add(textBox5);
-            Controls.Add(trackBar2);
-            Controls.Add(trackBar1);
+            Controls.Add(SubvolumeGainTrackBar);
+            Controls.Add(SubrfGainTrackBar);
             Controls.Add(textBox4);
             Controls.Add(ItuneOff);
             Controls.Add(ItuneOn);
             Controls.Add(IntTune);
-            Controls.Add(button2);
+            Controls.Add(SSB6);
             Controls.Add(SSB5);
             Controls.Add(SSB4);
             Controls.Add(DIGB);
@@ -967,13 +974,13 @@
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "MainForm";
-            Text = "The101Box v 15 - by Kees, ON9KVE - COM4";
+            Text = "The101Box v 15 - by Kees, ON9KVE - COM8";
             TransparencyKey = System.Drawing.Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).EndInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar2).EndInit();
+            ((System.ComponentModel.ISupportInitialize)SubrfGainTrackBar).EndInit();
+            ((System.ComponentModel.ISupportInitialize)SubvolumeGainTrackBar).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1021,13 +1028,13 @@
         private System.Windows.Forms.Button DIGB;
         private System.Windows.Forms.Button SSB4;
         private System.Windows.Forms.Button SSB5;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button SSB6;
         private System.Windows.Forms.Button IntTune;
         private System.Windows.Forms.Button ItuneOn;
         private System.Windows.Forms.Button ItuneOff;
         private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TrackBar trackBar1;
-        private System.Windows.Forms.TrackBar trackBar2;
+        private System.Windows.Forms.TrackBar SubrfGainTrackBar;
+        private System.Windows.Forms.TrackBar SubvolumeGainTrackBar;
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.TextBox textBox6;
         private System.Windows.Forms.Button Exchange;

@@ -30,21 +30,15 @@
         {
             RFSQL_box = new System.Windows.Forms.TextBox();
             TEMP_box = new System.Windows.Forms.TextBox();
-            TuneButton = new System.Windows.Forms.Button();
+            ExtTuneButton = new System.Windows.Forms.Button();
             CursorB = new System.Windows.Forms.Button();
             CenterB = new System.Windows.Forms.Button();
             USBB = new System.Windows.Forms.Button();
             LSBB = new System.Windows.Forms.Button();
             CWB = new System.Windows.Forms.Button();
-            P5WB = new System.Windows.Forms.Button();
-            P50WB = new System.Windows.Forms.Button();
-            P100WB = new System.Windows.Forms.Button();
-            VCTOGGLE = new System.Windows.Forms.Button();
             RFTOGGLE = new System.Windows.Forms.Button();
-            PWR_box = new System.Windows.Forms.TextBox();
             DSPMOD_box = new System.Windows.Forms.TextBox();
             MODE_box = new System.Windows.Forms.TextBox();
-            VC_box = new System.Windows.Forms.TextBox();
             ANT1B = new System.Windows.Forms.Button();
             ANT2B = new System.Windows.Forms.Button();
             ANT3RXB = new System.Windows.Forms.Button();
@@ -69,8 +63,28 @@
             textBox1 = new System.Windows.Forms.TextBox();
             textBox2 = new System.Windows.Forms.TextBox();
             BUSY_box = new System.Windows.Forms.TextBox();
+            pwrControlTrackBar = new System.Windows.Forms.TrackBar();
+            textBox3 = new System.Windows.Forms.TextBox();
+            AMB = new System.Windows.Forms.Button();
+            FMB = new System.Windows.Forms.Button();
+            DIGB = new System.Windows.Forms.Button();
+            SSB4 = new System.Windows.Forms.Button();
+            SSB5 = new System.Windows.Forms.Button();
+            button2 = new System.Windows.Forms.Button();
+            IntTune = new System.Windows.Forms.Button();
+            ItuneOn = new System.Windows.Forms.Button();
+            ItuneOff = new System.Windows.Forms.Button();
+            textBox4 = new System.Windows.Forms.TextBox();
+            trackBar1 = new System.Windows.Forms.TrackBar();
+            trackBar2 = new System.Windows.Forms.TrackBar();
+            textBox5 = new System.Windows.Forms.TextBox();
+            textBox6 = new System.Windows.Forms.TextBox();
+            Exchange = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar2).BeginInit();
             SuspendLayout();
             // 
             // RFSQL_box
@@ -95,7 +109,7 @@
             TEMP_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             TEMP_box.Font = new System.Drawing.Font("Verdana", 10F, System.Drawing.FontStyle.Bold);
             TEMP_box.ForeColor = System.Drawing.Color.Cyan;
-            TEMP_box.Location = new System.Drawing.Point(775, 105);
+            TEMP_box.Location = new System.Drawing.Point(2, 103);
             TEMP_box.Margin = new System.Windows.Forms.Padding(0);
             TEMP_box.Multiline = true;
             TEMP_box.Name = "TEMP_box";
@@ -106,23 +120,23 @@
             TEMP_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             TEMP_box.WordWrap = false;
             // 
-            // TuneButton
+            // ExtTuneButton
             // 
-            TuneButton.BackColor = System.Drawing.Color.DarkGreen;
-            TuneButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            TuneButton.FlatAppearance.BorderSize = 3;
-            TuneButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
-            TuneButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
-            TuneButton.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold);
-            TuneButton.ForeColor = System.Drawing.Color.Yellow;
-            TuneButton.Location = new System.Drawing.Point(756, 2);
-            TuneButton.Name = "TuneButton";
-            TuneButton.Size = new System.Drawing.Size(85, 102);
-            TuneButton.TabIndex = 8;
-            TuneButton.Text = "External Tuner";
-            TuneButton.UseVisualStyleBackColor = false;
-            TuneButton.MouseDown += TuneButton_MouseDown;
-            TuneButton.MouseUp += TuneButton_MouseUp;
+            ExtTuneButton.BackColor = System.Drawing.Color.DarkGreen;
+            ExtTuneButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            ExtTuneButton.FlatAppearance.BorderSize = 3;
+            ExtTuneButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            ExtTuneButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            ExtTuneButton.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold);
+            ExtTuneButton.ForeColor = System.Drawing.Color.Yellow;
+            ExtTuneButton.Location = new System.Drawing.Point(824, 70);
+            ExtTuneButton.Name = "ExtTuneButton";
+            ExtTuneButton.Size = new System.Drawing.Size(86, 33);
+            ExtTuneButton.TabIndex = 8;
+            ExtTuneButton.Text = "Ext Tuner";
+            ExtTuneButton.UseVisualStyleBackColor = false;
+            ExtTuneButton.MouseDown += TuneButton_MouseDown;
+            ExtTuneButton.MouseUp += TuneButton_MouseUp;
             // 
             // CursorB
             // 
@@ -132,7 +146,7 @@
             CursorB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             CursorB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             CursorB.ForeColor = System.Drawing.Color.Yellow;
-            CursorB.Location = new System.Drawing.Point(672, 0);
+            CursorB.Location = new System.Drawing.Point(506, 0);
             CursorB.Name = "CursorB";
             CursorB.Size = new System.Drawing.Size(85, 35);
             CursorB.TabIndex = 9;
@@ -148,7 +162,7 @@
             CenterB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             CenterB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             CenterB.ForeColor = System.Drawing.Color.Yellow;
-            CenterB.Location = new System.Drawing.Point(672, 34);
+            CenterB.Location = new System.Drawing.Point(506, 34);
             CenterB.Name = "CenterB";
             CenterB.Size = new System.Drawing.Size(85, 35);
             CenterB.TabIndex = 10;
@@ -164,9 +178,9 @@
             USBB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             USBB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             USBB.ForeColor = System.Drawing.Color.Yellow;
-            USBB.Location = new System.Drawing.Point(336, 0);
+            USBB.Location = new System.Drawing.Point(421, 0);
             USBB.Name = "USBB";
-            USBB.Size = new System.Drawing.Size(85, 35);
+            USBB.Size = new System.Drawing.Size(44, 35);
             USBB.TabIndex = 11;
             USBB.Text = "USB";
             USBB.UseVisualStyleBackColor = false;
@@ -180,9 +194,9 @@
             LSBB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             LSBB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             LSBB.ForeColor = System.Drawing.Color.Yellow;
-            LSBB.Location = new System.Drawing.Point(336, 34);
+            LSBB.Location = new System.Drawing.Point(464, 0);
             LSBB.Name = "LSBB";
-            LSBB.Size = new System.Drawing.Size(85, 35);
+            LSBB.Size = new System.Drawing.Size(44, 35);
             LSBB.TabIndex = 12;
             LSBB.Text = "LSB";
             LSBB.UseVisualStyleBackColor = false;
@@ -196,76 +210,13 @@
             CWB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             CWB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             CWB.ForeColor = System.Drawing.Color.Yellow;
-            CWB.Location = new System.Drawing.Point(336, 68);
+            CWB.Location = new System.Drawing.Point(421, 68);
             CWB.Name = "CWB";
-            CWB.Size = new System.Drawing.Size(85, 35);
+            CWB.Size = new System.Drawing.Size(44, 35);
             CWB.TabIndex = 13;
             CWB.Text = "CW";
             CWB.UseVisualStyleBackColor = false;
             CWB.MouseClick += CW_click;
-            // 
-            // P5WB
-            // 
-            P5WB.BackColor = System.Drawing.Color.DarkGreen;
-            P5WB.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            P5WB.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
-            P5WB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
-            P5WB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            P5WB.ForeColor = System.Drawing.Color.Yellow;
-            P5WB.Location = new System.Drawing.Point(252, 0);
-            P5WB.Name = "P5WB";
-            P5WB.Size = new System.Drawing.Size(85, 35);
-            P5WB.TabIndex = 15;
-            P5WB.Text = "5 WATT";
-            P5WB.UseVisualStyleBackColor = false;
-            P5WB.MouseClick += P5WB_click;
-            // 
-            // P50WB
-            // 
-            P50WB.BackColor = System.Drawing.Color.DarkGreen;
-            P50WB.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            P50WB.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
-            P50WB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
-            P50WB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            P50WB.ForeColor = System.Drawing.Color.Yellow;
-            P50WB.Location = new System.Drawing.Point(252, 34);
-            P50WB.Name = "P50WB";
-            P50WB.Size = new System.Drawing.Size(85, 35);
-            P50WB.TabIndex = 16;
-            P50WB.Text = "50 WATT";
-            P50WB.UseVisualStyleBackColor = false;
-            P50WB.MouseClick += P50W_click;
-            // 
-            // P100WB
-            // 
-            P100WB.BackColor = System.Drawing.Color.DarkGreen;
-            P100WB.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            P100WB.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
-            P100WB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
-            P100WB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            P100WB.ForeColor = System.Drawing.Color.Yellow;
-            P100WB.Location = new System.Drawing.Point(252, 68);
-            P100WB.Name = "P100WB";
-            P100WB.Size = new System.Drawing.Size(85, 35);
-            P100WB.TabIndex = 17;
-            P100WB.Text = "100 WATT";
-            P100WB.UseVisualStyleBackColor = false;
-            P100WB.MouseClick += P100W_click;
-            // 
-            // VCTOGGLE
-            // 
-            VCTOGGLE.BackColor = System.Drawing.Color.DarkGreen;
-            VCTOGGLE.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            VCTOGGLE.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
-            VCTOGGLE.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
-            VCTOGGLE.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            VCTOGGLE.ForeColor = System.Drawing.Color.Yellow;
-            VCTOGGLE.Location = new System.Drawing.Point(0, 68);
-            VCTOGGLE.Name = "VCTOGGLE";
-            VCTOGGLE.Size = new System.Drawing.Size(85, 35);
-            VCTOGGLE.TabIndex = 18;
-            VCTOGGLE.Text = "VC TUNE";
-            VCTOGGLE.UseVisualStyleBackColor = false;
             // 
             // RFTOGGLE
             // 
@@ -277,25 +228,10 @@
             RFTOGGLE.ForeColor = System.Drawing.Color.Yellow;
             RFTOGGLE.Location = new System.Drawing.Point(84, 68);
             RFTOGGLE.Name = "RFTOGGLE";
-            RFTOGGLE.Size = new System.Drawing.Size(85, 35);
+            RFTOGGLE.Size = new System.Drawing.Size(86, 35);
             RFTOGGLE.TabIndex = 20;
             RFTOGGLE.Text = "RF / SQL";
             RFTOGGLE.UseVisualStyleBackColor = false;
-            // 
-            // PWR_box
-            // 
-            PWR_box.BackColor = System.Drawing.Color.Black;
-            PWR_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            PWR_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            PWR_box.ForeColor = System.Drawing.Color.Cyan;
-            PWR_box.Location = new System.Drawing.Point(252, 103);
-            PWR_box.Margin = new System.Windows.Forms.Padding(0);
-            PWR_box.Name = "PWR_box";
-            PWR_box.Size = new System.Drawing.Size(84, 20);
-            PWR_box.TabIndex = 21;
-            PWR_box.TabStop = false;
-            PWR_box.Text = "<PWR>";
-            PWR_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // DSPMOD_box
             // 
@@ -303,7 +239,7 @@
             DSPMOD_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             DSPMOD_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             DSPMOD_box.ForeColor = System.Drawing.Color.Cyan;
-            DSPMOD_box.Location = new System.Drawing.Point(672, 103);
+            DSPMOD_box.Location = new System.Drawing.Point(506, 103);
             DSPMOD_box.Margin = new System.Windows.Forms.Padding(0);
             DSPMOD_box.Name = "DSPMOD_box";
             DSPMOD_box.Size = new System.Drawing.Size(84, 20);
@@ -318,7 +254,7 @@
             MODE_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             MODE_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             MODE_box.ForeColor = System.Drawing.Color.Cyan;
-            MODE_box.Location = new System.Drawing.Point(336, 103);
+            MODE_box.Location = new System.Drawing.Point(425, 103);
             MODE_box.Margin = new System.Windows.Forms.Padding(0);
             MODE_box.Name = "MODE_box";
             MODE_box.Size = new System.Drawing.Size(84, 20);
@@ -326,21 +262,6 @@
             MODE_box.TabStop = false;
             MODE_box.Text = "<MODE>";
             MODE_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // VC_box
-            // 
-            VC_box.BackColor = System.Drawing.Color.Black;
-            VC_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            VC_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            VC_box.ForeColor = System.Drawing.Color.Cyan;
-            VC_box.Location = new System.Drawing.Point(2, 103);
-            VC_box.Margin = new System.Windows.Forms.Padding(0);
-            VC_box.Name = "VC_box";
-            VC_box.Size = new System.Drawing.Size(84, 20);
-            VC_box.TabIndex = 24;
-            VC_box.TabStop = false;
-            VC_box.Text = "<VC>";
-            VC_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ANT1B
             // 
@@ -350,7 +271,7 @@
             ANT1B.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             ANT1B.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             ANT1B.ForeColor = System.Drawing.Color.Yellow;
-            ANT1B.Location = new System.Drawing.Point(420, 0);
+            ANT1B.Location = new System.Drawing.Point(253, 0);
             ANT1B.Name = "ANT1B";
             ANT1B.Size = new System.Drawing.Size(85, 35);
             ANT1B.TabIndex = 25;
@@ -366,7 +287,7 @@
             ANT2B.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             ANT2B.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             ANT2B.ForeColor = System.Drawing.Color.Yellow;
-            ANT2B.Location = new System.Drawing.Point(420, 34);
+            ANT2B.Location = new System.Drawing.Point(253, 34);
             ANT2B.Name = "ANT2B";
             ANT2B.Size = new System.Drawing.Size(85, 35);
             ANT2B.TabIndex = 26;
@@ -382,7 +303,7 @@
             ANT3RXB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             ANT3RXB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             ANT3RXB.ForeColor = System.Drawing.Color.Yellow;
-            ANT3RXB.Location = new System.Drawing.Point(420, 68);
+            ANT3RXB.Location = new System.Drawing.Point(253, 68);
             ANT3RXB.Name = "ANT3RXB";
             ANT3RXB.Size = new System.Drawing.Size(85, 35);
             ANT3RXB.TabIndex = 27;
@@ -398,7 +319,7 @@
             IPOB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             IPOB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             IPOB.ForeColor = System.Drawing.Color.Yellow;
-            IPOB.Location = new System.Drawing.Point(504, 0);
+            IPOB.Location = new System.Drawing.Point(337, 0);
             IPOB.Name = "IPOB";
             IPOB.Size = new System.Drawing.Size(85, 35);
             IPOB.TabIndex = 28;
@@ -414,7 +335,7 @@
             AMP1B.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             AMP1B.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             AMP1B.ForeColor = System.Drawing.Color.Yellow;
-            AMP1B.Location = new System.Drawing.Point(504, 34);
+            AMP1B.Location = new System.Drawing.Point(337, 34);
             AMP1B.Name = "AMP1B";
             AMP1B.Size = new System.Drawing.Size(85, 35);
             AMP1B.TabIndex = 29;
@@ -430,7 +351,7 @@
             AMP2B.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             AMP2B.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             AMP2B.ForeColor = System.Drawing.Color.Yellow;
-            AMP2B.Location = new System.Drawing.Point(504, 68);
+            AMP2B.Location = new System.Drawing.Point(337, 68);
             AMP2B.Name = "AMP2B";
             AMP2B.Size = new System.Drawing.Size(85, 35);
             AMP2B.TabIndex = 30;
@@ -444,7 +365,7 @@
             ANT_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             ANT_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             ANT_box.ForeColor = System.Drawing.Color.Cyan;
-            ANT_box.Location = new System.Drawing.Point(420, 103);
+            ANT_box.Location = new System.Drawing.Point(253, 103);
             ANT_box.Margin = new System.Windows.Forms.Padding(0);
             ANT_box.Name = "ANT_box";
             ANT_box.Size = new System.Drawing.Size(84, 20);
@@ -459,7 +380,7 @@
             IPO_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             IPO_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             IPO_box.ForeColor = System.Drawing.Color.Cyan;
-            IPO_box.Location = new System.Drawing.Point(504, 103);
+            IPO_box.Location = new System.Drawing.Point(337, 103);
             IPO_box.Margin = new System.Windows.Forms.Padding(0);
             IPO_box.Name = "IPO_box";
             IPO_box.Size = new System.Drawing.Size(84, 20);
@@ -478,7 +399,7 @@
             RX1B.ForeColor = System.Drawing.Color.Yellow;
             RX1B.Location = new System.Drawing.Point(168, 0);
             RX1B.Name = "RX1B";
-            RX1B.Size = new System.Drawing.Size(85, 35);
+            RX1B.Size = new System.Drawing.Size(44, 35);
             RX1B.TabIndex = 33;
             RX1B.Text = "RX 1";
             RX1B.UseVisualStyleBackColor = false;
@@ -492,9 +413,9 @@
             RX2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             RX2.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             RX2.ForeColor = System.Drawing.Color.Yellow;
-            RX2.Location = new System.Drawing.Point(168, 34);
+            RX2.Location = new System.Drawing.Point(210, 0);
             RX2.Name = "RX2";
-            RX2.Size = new System.Drawing.Size(85, 35);
+            RX2.Size = new System.Drawing.Size(44, 35);
             RX2.TabIndex = 34;
             RX2.Text = "RX 2";
             RX2.UseVisualStyleBackColor = false;
@@ -508,9 +429,9 @@
             RX12B.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             RX12B.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             RX12B.ForeColor = System.Drawing.Color.Yellow;
-            RX12B.Location = new System.Drawing.Point(168, 68);
+            RX12B.Location = new System.Drawing.Point(168, 34);
             RX12B.Name = "RX12B";
-            RX12B.Size = new System.Drawing.Size(85, 35);
+            RX12B.Size = new System.Drawing.Size(86, 35);
             RX12B.TabIndex = 35;
             RX12B.Text = "RX 1 + 2";
             RX12B.UseVisualStyleBackColor = false;
@@ -540,11 +461,11 @@
             SSB1.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             SSB1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             SSB1.ForeColor = System.Drawing.Color.Yellow;
-            SSB1.Location = new System.Drawing.Point(588, 0);
+            SSB1.Location = new System.Drawing.Point(589, 34);
             SSB1.Name = "SSB1";
-            SSB1.Size = new System.Drawing.Size(85, 35);
+            SSB1.Size = new System.Drawing.Size(44, 35);
             SSB1.TabIndex = 37;
-            SSB1.Text = "100k";
+            SSB1.Text = "100";
             SSB1.UseVisualStyleBackColor = false;
             SSB1.MouseClick += SSB1_click;
             // 
@@ -556,11 +477,11 @@
             SSB2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             SSB2.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             SSB2.ForeColor = System.Drawing.Color.Yellow;
-            SSB2.Location = new System.Drawing.Point(588, 34);
+            SSB2.Location = new System.Drawing.Point(631, 34);
             SSB2.Name = "SSB2";
-            SSB2.Size = new System.Drawing.Size(85, 35);
+            SSB2.Size = new System.Drawing.Size(44, 35);
             SSB2.TabIndex = 38;
-            SSB2.Text = "200k";
+            SSB2.Text = "200";
             SSB2.UseVisualStyleBackColor = false;
             SSB2.MouseClick += SSB2_click;
             // 
@@ -572,11 +493,11 @@
             SSB3.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             SSB3.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             SSB3.ForeColor = System.Drawing.Color.Yellow;
-            SSB3.Location = new System.Drawing.Point(588, 68);
+            SSB3.Location = new System.Drawing.Point(589, 68);
             SSB3.Name = "SSB3";
-            SSB3.Size = new System.Drawing.Size(85, 35);
+            SSB3.Size = new System.Drawing.Size(44, 35);
             SSB3.TabIndex = 39;
-            SSB3.Text = "500k";
+            SSB3.Text = "500";
             SSB3.UseVisualStyleBackColor = false;
             SSB3.MouseClick += SSB3_click;
             // 
@@ -604,7 +525,7 @@
             FixB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             FixB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             FixB.ForeColor = System.Drawing.Color.Yellow;
-            FixB.Location = new System.Drawing.Point(672, 68);
+            FixB.Location = new System.Drawing.Point(506, 68);
             FixB.Name = "FixB";
             FixB.Size = new System.Drawing.Size(85, 35);
             FixB.TabIndex = 41;
@@ -616,7 +537,7 @@
             // rfGainTrackBar
             // 
             rfGainTrackBar.BackColor = System.Drawing.Color.DarkGreen;
-            rfGainTrackBar.Location = new System.Drawing.Point(842, 1);
+            rfGainTrackBar.Location = new System.Drawing.Point(678, 1);
             rfGainTrackBar.Maximum = 255;
             rfGainTrackBar.Name = "rfGainTrackBar";
             rfGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
@@ -625,11 +546,12 @@
             rfGainTrackBar.TickFrequency = 16;
             rfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
             rfGainTrackBar.Value = 255;
+            rfGainTrackBar.Scroll += rfGainTrackBar_Scroll;
             // 
             // volumeGainTrackBar
             // 
             volumeGainTrackBar.BackColor = System.Drawing.Color.DarkGreen;
-            volumeGainTrackBar.Location = new System.Drawing.Point(889, 1);
+            volumeGainTrackBar.Location = new System.Drawing.Point(727, 1);
             volumeGainTrackBar.Maximum = 255;
             volumeGainTrackBar.Name = "volumeGainTrackBar";
             volumeGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
@@ -656,7 +578,7 @@
             // 
             // FreqS_box
             // 
-            FreqS_box.BackColor = System.Drawing.Color.DarkGreen;
+            FreqS_box.BackColor = System.Drawing.Color.DarkBlue;
             FreqS_box.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             FreqS_box.ForeColor = System.Drawing.Color.Yellow;
             FreqS_box.Location = new System.Drawing.Point(2, 36);
@@ -675,7 +597,7 @@
             textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             textBox1.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold);
             textBox1.ForeColor = System.Drawing.Color.Cyan;
-            textBox1.Location = new System.Drawing.Point(843, 106);
+            textBox1.Location = new System.Drawing.Point(679, 106);
             textBox1.Margin = new System.Windows.Forms.Padding(0);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
@@ -692,7 +614,7 @@
             textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
             textBox2.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold);
             textBox2.ForeColor = System.Drawing.Color.Cyan;
-            textBox2.Location = new System.Drawing.Point(890, 106);
+            textBox2.Location = new System.Drawing.Point(728, 106);
             textBox2.Margin = new System.Windows.Forms.Padding(0);
             textBox2.Multiline = true;
             textBox2.Name = "textBox2";
@@ -708,7 +630,7 @@
             BUSY_box.BackColor = System.Drawing.Color.Black;
             BUSY_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             BUSY_box.ForeColor = System.Drawing.Color.FromArgb(64, 64, 64);
-            BUSY_box.Location = new System.Drawing.Point(830, 107);
+            BUSY_box.Location = new System.Drawing.Point(60, 103);
             BUSY_box.Margin = new System.Windows.Forms.Padding(1);
             BUSY_box.Multiline = true;
             BUSY_box.Name = "BUSY_box";
@@ -718,12 +640,287 @@
             BUSY_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             BUSY_box.WordWrap = false;
             // 
+            // pwrControlTrackBar
+            // 
+            pwrControlTrackBar.BackColor = System.Drawing.Color.DarkGreen;
+            pwrControlTrackBar.Location = new System.Drawing.Point(776, 1);
+            pwrControlTrackBar.Maximum = 100;
+            pwrControlTrackBar.Minimum = 5;
+            pwrControlTrackBar.Name = "pwrControlTrackBar";
+            pwrControlTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            pwrControlTrackBar.Size = new System.Drawing.Size(45, 102);
+            pwrControlTrackBar.TabIndex = 44;
+            pwrControlTrackBar.TickFrequency = 5;
+            pwrControlTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            pwrControlTrackBar.Value = 100;
+            // 
+            // textBox3
+            // 
+            textBox3.BackColor = System.Drawing.Color.Black;
+            textBox3.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            textBox3.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold);
+            textBox3.ForeColor = System.Drawing.Color.Cyan;
+            textBox3.Location = new System.Drawing.Point(777, 106);
+            textBox3.Margin = new System.Windows.Forms.Padding(0);
+            textBox3.Multiline = true;
+            textBox3.Name = "textBox3";
+            textBox3.Size = new System.Drawing.Size(40, 15);
+            textBox3.TabIndex = 45;
+            textBox3.TabStop = false;
+            textBox3.Text = "100";
+            textBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            textBox3.WordWrap = false;
+            // 
+            // AMB
+            // 
+            AMB.BackColor = System.Drawing.Color.DarkGreen;
+            AMB.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            AMB.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            AMB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            AMB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            AMB.ForeColor = System.Drawing.Color.Yellow;
+            AMB.Location = new System.Drawing.Point(421, 34);
+            AMB.Name = "AMB";
+            AMB.Size = new System.Drawing.Size(44, 35);
+            AMB.TabIndex = 49;
+            AMB.Text = "AM";
+            AMB.UseVisualStyleBackColor = false;
+            AMB.MouseClick += AM_click;
+            // 
+            // FMB
+            // 
+            FMB.BackColor = System.Drawing.Color.DarkGreen;
+            FMB.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            FMB.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            FMB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            FMB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            FMB.ForeColor = System.Drawing.Color.Yellow;
+            FMB.Location = new System.Drawing.Point(464, 34);
+            FMB.Name = "FMB";
+            FMB.Size = new System.Drawing.Size(44, 35);
+            FMB.TabIndex = 50;
+            FMB.Text = "FM";
+            FMB.UseVisualStyleBackColor = false;
+            FMB.MouseClick += FM_click;
+            // 
+            // DIGB
+            // 
+            DIGB.BackColor = System.Drawing.Color.DarkGreen;
+            DIGB.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            DIGB.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            DIGB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            DIGB.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            DIGB.ForeColor = System.Drawing.Color.Yellow;
+            DIGB.Location = new System.Drawing.Point(464, 68);
+            DIGB.Name = "DIGB";
+            DIGB.Size = new System.Drawing.Size(44, 35);
+            DIGB.TabIndex = 51;
+            DIGB.Text = "DIG";
+            DIGB.UseVisualStyleBackColor = false;
+            DIGB.MouseClick += DIG_click;
+            // 
+            // SSB4
+            // 
+            SSB4.BackColor = System.Drawing.Color.DarkGreen;
+            SSB4.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            SSB4.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            SSB4.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            SSB4.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            SSB4.ForeColor = System.Drawing.Color.Yellow;
+            SSB4.Location = new System.Drawing.Point(631, 68);
+            SSB4.Name = "SSB4";
+            SSB4.Size = new System.Drawing.Size(44, 35);
+            SSB4.TabIndex = 52;
+            SSB4.Text = "1 M";
+            SSB4.UseVisualStyleBackColor = false;
+            // 
+            // SSB5
+            // 
+            SSB5.BackColor = System.Drawing.Color.DarkGreen;
+            SSB5.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            SSB5.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            SSB5.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            SSB5.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            SSB5.ForeColor = System.Drawing.Color.Yellow;
+            SSB5.Location = new System.Drawing.Point(589, 0);
+            SSB5.Name = "SSB5";
+            SSB5.Size = new System.Drawing.Size(44, 35);
+            SSB5.TabIndex = 53;
+            SSB5.Text = "20 k";
+            SSB5.UseVisualStyleBackColor = false;
+            // 
+            // button2
+            // 
+            button2.BackColor = System.Drawing.Color.DarkGreen;
+            button2.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            button2.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            button2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            button2.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            button2.ForeColor = System.Drawing.Color.Yellow;
+            button2.Location = new System.Drawing.Point(631, 0);
+            button2.Name = "button2";
+            button2.Size = new System.Drawing.Size(44, 35);
+            button2.TabIndex = 54;
+            button2.Text = "50 k";
+            button2.UseVisualStyleBackColor = false;
+            // 
+            // IntTune
+            // 
+            IntTune.BackColor = System.Drawing.Color.DarkGreen;
+            IntTune.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            IntTune.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            IntTune.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            IntTune.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            IntTune.ForeColor = System.Drawing.Color.Yellow;
+            IntTune.Location = new System.Drawing.Point(824, 1);
+            IntTune.Name = "IntTune";
+            IntTune.Size = new System.Drawing.Size(86, 35);
+            IntTune.TabIndex = 55;
+            IntTune.Text = "Int Tuner";
+            IntTune.UseVisualStyleBackColor = false;
+            // 
+            // ItuneOn
+            // 
+            ItuneOn.BackColor = System.Drawing.Color.DarkGreen;
+            ItuneOn.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            ItuneOn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            ItuneOn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            ItuneOn.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            ItuneOn.ForeColor = System.Drawing.Color.Yellow;
+            ItuneOn.Location = new System.Drawing.Point(824, 36);
+            ItuneOn.Name = "ItuneOn";
+            ItuneOn.Size = new System.Drawing.Size(44, 35);
+            ItuneOn.TabIndex = 56;
+            ItuneOn.Text = "On";
+            ItuneOn.UseVisualStyleBackColor = false;
+            // 
+            // ItuneOff
+            // 
+            ItuneOff.BackColor = System.Drawing.Color.DarkGreen;
+            ItuneOff.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            ItuneOff.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            ItuneOff.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            ItuneOff.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            ItuneOff.ForeColor = System.Drawing.Color.Yellow;
+            ItuneOff.Location = new System.Drawing.Point(866, 36);
+            ItuneOff.Name = "ItuneOff";
+            ItuneOff.Size = new System.Drawing.Size(44, 35);
+            ItuneOff.TabIndex = 57;
+            ItuneOff.Text = "Off";
+            ItuneOff.UseVisualStyleBackColor = false;
+            // 
+            // textBox4
+            // 
+            textBox4.BackColor = System.Drawing.Color.Black;
+            textBox4.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            textBox4.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            textBox4.ForeColor = System.Drawing.Color.Cyan;
+            textBox4.Location = new System.Drawing.Point(827, 103);
+            textBox4.Margin = new System.Windows.Forms.Padding(0);
+            textBox4.Name = "textBox4";
+            textBox4.Size = new System.Drawing.Size(84, 20);
+            textBox4.TabIndex = 58;
+            textBox4.TabStop = false;
+            textBox4.Text = "<INT TUN>";
+            textBox4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // trackBar1
+            // 
+            trackBar1.BackColor = System.Drawing.Color.DarkBlue;
+            trackBar1.Location = new System.Drawing.Point(915, 1);
+            trackBar1.Maximum = 255;
+            trackBar1.Name = "trackBar1";
+            trackBar1.Orientation = System.Windows.Forms.Orientation.Vertical;
+            trackBar1.Size = new System.Drawing.Size(45, 102);
+            trackBar1.TabIndex = 59;
+            trackBar1.TickFrequency = 16;
+            trackBar1.TickStyle = System.Windows.Forms.TickStyle.Both;
+            trackBar1.Value = 255;
+            // 
+            // trackBar2
+            // 
+            trackBar2.BackColor = System.Drawing.Color.DarkBlue;
+            trackBar2.Location = new System.Drawing.Point(964, 1);
+            trackBar2.Maximum = 255;
+            trackBar2.Name = "trackBar2";
+            trackBar2.Orientation = System.Windows.Forms.Orientation.Vertical;
+            trackBar2.Size = new System.Drawing.Size(45, 102);
+            trackBar2.TabIndex = 60;
+            trackBar2.TickFrequency = 16;
+            trackBar2.TickStyle = System.Windows.Forms.TickStyle.Both;
+            trackBar2.Value = 60;
+            // 
+            // textBox5
+            // 
+            textBox5.BackColor = System.Drawing.Color.Black;
+            textBox5.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            textBox5.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold);
+            textBox5.ForeColor = System.Drawing.Color.Cyan;
+            textBox5.Location = new System.Drawing.Point(916, 106);
+            textBox5.Margin = new System.Windows.Forms.Padding(0);
+            textBox5.Multiline = true;
+            textBox5.Name = "textBox5";
+            textBox5.Size = new System.Drawing.Size(40, 15);
+            textBox5.TabIndex = 61;
+            textBox5.TabStop = false;
+            textBox5.Text = "00";
+            textBox5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            textBox5.WordWrap = false;
+            // 
+            // textBox6
+            // 
+            textBox6.BackColor = System.Drawing.Color.Black;
+            textBox6.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            textBox6.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold);
+            textBox6.ForeColor = System.Drawing.Color.Cyan;
+            textBox6.Location = new System.Drawing.Point(965, 106);
+            textBox6.Margin = new System.Windows.Forms.Padding(0);
+            textBox6.Multiline = true;
+            textBox6.Name = "textBox6";
+            textBox6.Size = new System.Drawing.Size(40, 15);
+            textBox6.TabIndex = 62;
+            textBox6.TabStop = false;
+            textBox6.Text = "00";
+            textBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            textBox6.WordWrap = false;
+            // 
+            // Exchange
+            // 
+            Exchange.BackColor = System.Drawing.Color.DarkGreen;
+            Exchange.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            Exchange.FlatAppearance.BorderSize = 3;
+            Exchange.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            Exchange.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            Exchange.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold);
+            Exchange.ForeColor = System.Drawing.Color.Yellow;
+            Exchange.Location = new System.Drawing.Point(0, 68);
+            Exchange.Name = "Exchange";
+            Exchange.Size = new System.Drawing.Size(86, 35);
+            Exchange.TabIndex = 63;
+            Exchange.Text = "<==>";
+            Exchange.UseVisualStyleBackColor = false;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.Black;
-            ClientSize = new System.Drawing.Size(934, 125);
+            ClientSize = new System.Drawing.Size(1013, 125);
+            Controls.Add(Exchange);
+            Controls.Add(textBox6);
+            Controls.Add(textBox5);
+            Controls.Add(trackBar2);
+            Controls.Add(trackBar1);
+            Controls.Add(textBox4);
+            Controls.Add(ItuneOff);
+            Controls.Add(ItuneOn);
+            Controls.Add(IntTune);
+            Controls.Add(button2);
+            Controls.Add(SSB5);
+            Controls.Add(SSB4);
+            Controls.Add(DIGB);
+            Controls.Add(FMB);
+            Controls.Add(AMB);
             Controls.Add(BUSY_box);
             Controls.Add(textBox2);
             Controls.Add(textBox1);
@@ -748,23 +945,19 @@
             Controls.Add(ANT3RXB);
             Controls.Add(ANT2B);
             Controls.Add(ANT1B);
-            Controls.Add(VC_box);
             Controls.Add(MODE_box);
             Controls.Add(DSPMOD_box);
-            Controls.Add(PWR_box);
             Controls.Add(RFTOGGLE);
-            Controls.Add(VCTOGGLE);
-            Controls.Add(P100WB);
-            Controls.Add(P50WB);
-            Controls.Add(P5WB);
             Controls.Add(CWB);
             Controls.Add(LSBB);
             Controls.Add(USBB);
             Controls.Add(CenterB);
             Controls.Add(CursorB);
-            Controls.Add(TuneButton);
+            Controls.Add(ExtTuneButton);
             Controls.Add(TEMP_box);
             Controls.Add(RFSQL_box);
+            Controls.Add(pwrControlTrackBar);
+            Controls.Add(textBox3);
             Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             ForeColor = System.Drawing.Color.Yellow;
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -778,6 +971,9 @@
             TransparencyKey = System.Drawing.Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar2).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -785,21 +981,15 @@
         #endregion
         private System.Windows.Forms.TextBox RFSQL_box;
         private System.Windows.Forms.TextBox TEMP_box;
-        private System.Windows.Forms.Button TuneButton;
+        private System.Windows.Forms.Button ExtTuneButton;
         private System.Windows.Forms.Button CursorB;
         private System.Windows.Forms.Button CenterB;
         private System.Windows.Forms.Button USBB;
         private System.Windows.Forms.Button LSBB;
         private System.Windows.Forms.Button CWB;
-        private System.Windows.Forms.Button P5WB;
-        private System.Windows.Forms.Button P50WB;
-        private System.Windows.Forms.Button P100WB;
-        private System.Windows.Forms.Button VCTOGGLE;
         private System.Windows.Forms.Button RFTOGGLE;
-        private System.Windows.Forms.TextBox PWR_box;
         private System.Windows.Forms.TextBox DSPMOD_box;
         private System.Windows.Forms.TextBox MODE_box;
-        private System.Windows.Forms.TextBox VC_box;
         private System.Windows.Forms.Button ANT1B;
         private System.Windows.Forms.Button ANT2B;
         private System.Windows.Forms.Button ANT3RXB;
@@ -819,11 +1009,28 @@
         private System.Windows.Forms.Button FixB;
         private System.Windows.Forms.TrackBar rfGainTrackBar;
         private System.Windows.Forms.TrackBar volumeGainTrackBar;
+        private System.Windows.Forms.TrackBar pwrControlTrackBar;
         private System.Windows.Forms.TextBox FreqM_box;
         private System.Windows.Forms.TextBox FreqS_box;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.TextBox BUSY_box;
+        private System.Windows.Forms.Button AMB;
+        private System.Windows.Forms.Button FMB;
+        private System.Windows.Forms.Button DIGB;
+        private System.Windows.Forms.Button SSB4;
+        private System.Windows.Forms.Button SSB5;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button IntTune;
+        private System.Windows.Forms.Button ItuneOn;
+        private System.Windows.Forms.Button ItuneOff;
+        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.TrackBar trackBar2;
+        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.Button Exchange;
     }
 }
 

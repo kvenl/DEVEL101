@@ -18,8 +18,8 @@ namespace The101Box
     public partial class MainForm : Form
     {
         public readonly SerialPort Serial_Port;
-        public string temp, mode, Pstr, Ptemp, Pwr, PwrD, Rfsql, Dspmod, Dspspan, RfsqlD,
-            DspmodD, DspspanD, FColorB, Mode, ModeD, Dspant, DspantD, Dspipo, DspipoD, DspRx, DspRxD, SButton, DScopspan, Bar = "";
+        public string temp, mode, Rfsql, Dspmod, Dspspan, RfsqlD,
+            DspmodD, DspspanD, FColorB, Ptemp, Pstr, Mode, ModeD, Dspant, DspantD, Dspipo, DspipoD, DspRx, DspRxD, SButton, DScopspan, Bar = "";
         public decimal TempD, tempnum, Rfsqlnum, Dsppodnum, SecondNum;
 
         private CancellationTokenSource cts = new();
@@ -30,22 +30,19 @@ namespace The101Box
         {
             InitializeComponent();
 
-            // Increase form width to accommodate sliders
-            // this.ClientSize = new Size(950, 125);  // Removed: now set in designer to 934
-
             // Attach event handlers for sliders
             rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
             volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
 
             // Ensure External Tuner button uses Flat style for color changes
-            TuneButton.FlatStyle = FlatStyle.Flat;
-            TuneButton.BackColor = Color.DarkGreen; // Set initial background color
-            TuneButton.ForeColor = Color.Yellow; // Set text color to yellow
-            TuneButton.FlatAppearance.BorderSize = 0; // We'll draw our own border
-            TuneButton.FlatAppearance.MouseDownBackColor = Color.Red; // Set mouse down color
-            TuneButton.FlatAppearance.MouseOverBackColor = Color.Blue; // Set mouse over color
-            TuneButton.FlatAppearance.BorderColor = Color.White; // Set border color
-            TuneButton.Paint += TuneButton_Paint;
+            ExtTuneButton.FlatStyle = FlatStyle.Flat;
+            ExtTuneButton.BackColor = Color.DarkGreen; // Set initial background color
+            ExtTuneButton.ForeColor = Color.Yellow; // Set text color to yellow
+            ExtTuneButton.FlatAppearance.BorderSize = 0; // We'll draw our own border
+            ExtTuneButton.FlatAppearance.MouseDownBackColor = Color.Red; // Set mouse down color
+            ExtTuneButton.FlatAppearance.MouseOverBackColor = Color.Blue; // Set mouse over color
+            ExtTuneButton.FlatAppearance.BorderColor = Color.White; // Set border color
+            ExtTuneButton.Paint += TuneButton_Paint;
 
             // Rechterknop RX1+RX2 uit op 
             RX12B.MouseDown += RX12B_MouseDown;
@@ -56,12 +53,12 @@ namespace The101Box
             {
                 Handshake = Handshake.None,
                 RtsEnable = true,
-                ReadTimeout = 5000 
+                ReadTimeout = 5000
             };
 
             // Open the serial port on a background thread so UI initialization isn't blocked.
             // Enable UI controls only after the port is opened successfully.
-            TuneButton.Enabled = false;
+            ExtTuneButton.Enabled = false;
 
             Task.Run(async () =>
             {
@@ -74,8 +71,8 @@ namespace The101Box
                     {
                         Invoke((Action)(() =>
                         {
-                            TuneButton.Enabled = true;
-                            TuneButton.ForeColor = Color.Yellow;
+                            ExtTuneButton.Enabled = true;
+                            ExtTuneButton.ForeColor = Color.Yellow;
                         }));
                     }
 
@@ -131,18 +128,6 @@ namespace The101Box
                         FColorB = "Cyan";
                     }
 
-                    IssueCmd("PC;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        Pwr = temp.Substring(2, 3);
-                        PwrD = Pwr.TrimStart('0');
-                    }
-                    else
-                    {
-                        PwrD = "0";
-                    }
-
                     IssueCmd("EX030107;");
                     temp = Serial_Port.ReadTo(";");
                     if (temp.Length >= 9)
@@ -155,20 +140,6 @@ namespace The101Box
                         RfsqlD = "RF";
                     }
 
-                    // New VC read block: Poll and display VC state (mirrors RFSQL logic)
-                    IssueCmd("VT0;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 8)  // VT + 5 digits + ;
-                    {
-                        char statusChar = temp[3];  // Fourth character (index 3) is the status: 0=off, 1=on
-                        string vcDisplay = statusChar == '1' ? "VC on" : "VC off";
-                        vcOn = statusChar == '1';  // Sync the toggle state variable for consistency
-                        UpdateTextBox(VC_box, vcDisplay);
-                    }
-                    else
-                    {
-                        UpdateTextBox(VC_box, "VC ???");
-                    }
 
                     IssueCmd("SS06;");
                     temp = Serial_Port.ReadTo(";");
@@ -215,6 +186,9 @@ namespace The101Box
                             "1" => "LSB",
                             "2" => "USB",
                             "3" => "CW",
+                            "4" => "FM",
+                            "5" => "AM",
+                            "C" => "DIG-U",
                             _ => "???",
                         };
                     }
@@ -274,12 +248,9 @@ namespace The101Box
                     string Blokje = "█";
                     Bar = (Bar == Blokje) ? " " : Blokje;
 
-
-
                     // Update UI
                     UpdateTextBox(TEMP_box, $"{TempD:00}°C", Color.FromName(FColorB));
                     UpdateTextBox(RFSQL_box, RfsqlD);
-                    UpdateTextBox(PWR_box, PwrD);
                     UpdateTextBox(DSPMOD_box, DspmodD);
                     UpdateTextBox(DSPSPAN_box, DspspanD);
                     UpdateTextBox(MODE_box, ModeD);
@@ -293,6 +264,7 @@ namespace The101Box
                     // Detach event handlers to prevent sending commands when setting values
                     rfGainTrackBar.ValueChanged -= RfGainTrackBar_ValueChanged;
                     volumeGainTrackBar.ValueChanged -= VolumeGainTrackBar_ValueChanged;
+                    pwrControlTrackBar.ValueChanged -= PwrControlTrackBar_ValueChanged;
 
                     // Read and set RF gain slider
                     IssueCmd("RG0;");
@@ -321,9 +293,23 @@ namespace The101Box
                         }
                     }
 
+                    // Read and set power slider
+                    IssueCmd("PC;");
+                    temp = Serial_Port.ReadTo(";");
+                    if (temp.Length >= 5)
+                    {
+                        string pcValueStr = temp.Substring(2, 3); // Extract the power value
+                        if (int.TryParse(pcValueStr, out int pcValue))
+                        {
+                            pwrControlTrackBar.Value = Math.Max(pwrControlTrackBar.Minimum, Math.Min(pwrControlTrackBar.Maximum, pcValue));
+                            UpdateTextBox(textBox3, pcValue.ToString("D3")); // Display the power value in textBox3
+                        }
+                    }
+
                     // Reattach event handlers
                     rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
                     volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
+                    pwrControlTrackBar.ValueChanged += PwrControlTrackBar_ValueChanged;
 
                     IssueCmd("FA;");
                     temp = Serial_Port.ReadTo(";");
@@ -446,9 +432,12 @@ namespace The101Box
         private void USB_click(object sender, MouseEventArgs e) { IssueCmd("MD02;"); }
         private void LSB_click(object sender, MouseEventArgs e) { IssueCmd("MD01;"); }
         private void CW_click(object sender, MouseEventArgs e) { IssueCmd("MD03;"); }
-        private void P5WB_click(object sender, MouseEventArgs e) { IssueCmd("PC005;"); }
-        private void P50W_click(object sender, MouseEventArgs e) { IssueCmd("PC050;"); }
-        private void P100W_click(object sender, MouseEventArgs e) { IssueCmd("PC100;"); }
+        private void FM_click(object sender, MouseEventArgs e) { IssueCmd("MD04;"); }
+        private void AM_click(object sender, MouseEventArgs e) { IssueCmd("MD05;"); }
+        private void DIG_click(object sender, MouseEventArgs e) { IssueCmd("MD0C;"); }
+
+
+
         private void ANT1B_click(object sender, MouseEventArgs e) { IssueCmd("AN01;"); }
         private void ANT2B_click(object sender, MouseEventArgs e) { IssueCmd("AN02;"); }
         private void ANT3RXB_click(object sender, MouseEventArgs e) { IssueCmd("AN03;"); }
@@ -470,15 +459,15 @@ namespace The101Box
         private void FixB_Click(object sender, EventArgs e) { }
 
         // --- External Tuner color change handlers ---
-        private void TuneButton_MouseEnter(object sender, EventArgs e) { TuneButton.BackColor = Color.Blue; }
-        private void TuneButton_MouseLeave(object sender, EventArgs e) { TuneButton.BackColor = Color.DarkGreen; }
-        private void TuneButton_MouseDown_Color(object sender, MouseEventArgs e) { TuneButton.BackColor = Color.Red; }
+        private void TuneButton_MouseEnter(object sender, EventArgs e) { ExtTuneButton.BackColor = Color.Blue; }
+        private void TuneButton_MouseLeave(object sender, EventArgs e) { ExtTuneButton.BackColor = Color.DarkGreen; }
+        private void TuneButton_MouseDown_Color(object sender, MouseEventArgs e) { ExtTuneButton.BackColor = Color.Red; }
         private void TuneButton_MouseUp_Color(object sender, MouseEventArgs e)
         {
-            if (TuneButton.ClientRectangle.Contains(TuneButton.PointToClient(Cursor.Position)))
-                TuneButton.BackColor = Color.Blue;
+            if (ExtTuneButton.ClientRectangle.Contains(ExtTuneButton.PointToClient(Cursor.Position)))
+                ExtTuneButton.BackColor = Color.Blue;
             else
-                TuneButton.BackColor = Color.DarkGreen;
+                ExtTuneButton.BackColor = Color.DarkGreen;
         }
         private void TuneButton_Paint(object sender, PaintEventArgs e)
         {
@@ -506,19 +495,17 @@ namespace The101Box
             IssueCmd($"AG0{value};");
         }
 
-        private void VCTOGGLE_click(object sender, MouseEventArgs e)
+        private void PwrControlTrackBar_ValueChanged(object sender, EventArgs e)
         {
-            vcOn = !vcOn;
-            if (vcOn)
-            {
-                IssueCmd("VT0100;"); // VC on (main receiver)
-                VC_box.Text = "VC on";
-            }
-            else
-            {
-                IssueCmd("VT0000;"); // VC off (main receiver)
-                VC_box.Text = "VC off";
-            }
+            int displayedValue = pwrControlTrackBar.Value; // Get slider value
+            string value = displayedValue.ToString("D3"); // Format as 3 digits
+            UpdateTextBox(textBox3, value); // Update the display
+            IssueCmd($"PC{value};"); // Send the power control command
+        }
+
+        private void rfGainTrackBar_Scroll(object sender, EventArgs e)
+        {
+
         }
     }
 }

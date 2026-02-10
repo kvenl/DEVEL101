@@ -9,8 +9,8 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
-// Version : 15-8 (09 feb 26); 
-// Name    : The101Box Yaesu FTDX101 @ COM8
+// Version : 16-4 (09 feb 26); 
+// Name    : The101Box Yaesu FTDX101 @ COM4
 
 
 namespace The101Box
@@ -45,10 +45,11 @@ namespace The101Box
             ExtTuneButton.Paint += TuneButton_Paint;
 
             // Rechterknop RX1+RX2 uit op 
-            RX12B.MouseDown += RX12B_MouseDown;
-            RFTOGGLE.MouseClick += RFB_click;
+         //   RX12B.MouseDown += RX12B_MouseDown;
+         //   RFTOGGLE.MouseClick += RFB_click;
+         //   SWAP.Click += SWAP_Click;
 
-            Serial_Port = new SerialPort("COM8", 38400, Parity.None, 8, StopBits.Two)
+            Serial_Port = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.Two)
             {
                 Handshake = Handshake.None,
                 RtsEnable = true,
@@ -545,6 +546,10 @@ namespace The101Box
         private void ItuneOff_Click(object sender, EventArgs e)
         {
             IssueCmd("AC000;"); // Turn internal tuner OFF
+        }
+        private void SWAP_Click(object sender, EventArgs e)
+        {
+            IssueCmd("SV;");
         }
     }
 }

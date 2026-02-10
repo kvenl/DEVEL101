@@ -79,7 +79,7 @@
             SubvolumeGainTrackBar = new System.Windows.Forms.TrackBar();
             textBox5 = new System.Windows.Forms.TextBox();
             textBox6 = new System.Windows.Forms.TextBox();
-            Exchange = new System.Windows.Forms.Button();
+            SWAP = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).BeginInit();
@@ -232,6 +232,7 @@
             RFTOGGLE.TabIndex = 20;
             RFTOGGLE.Text = "RF / SQL";
             RFTOGGLE.UseVisualStyleBackColor = false;
+            RFTOGGLE.MouseClick += RFB_click;
             // 
             // DSPMOD_box
             // 
@@ -436,6 +437,7 @@
             RX12B.Text = "RX 1 + 2";
             RX12B.UseVisualStyleBackColor = false;
             RX12B.MouseClick += RX12B_click;
+            RX12B.MouseDown += RX12B_MouseDown;
             // 
             // RX_box
             // 
@@ -891,21 +893,22 @@
             textBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox6.WordWrap = false;
             // 
-            // Exchange
+            // SWAP
             // 
-            Exchange.BackColor = System.Drawing.Color.DarkGreen;
-            Exchange.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            Exchange.FlatAppearance.BorderSize = 3;
-            Exchange.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
-            Exchange.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
-            Exchange.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            Exchange.ForeColor = System.Drawing.Color.Yellow;
-            Exchange.Location = new System.Drawing.Point(0, 68);
-            Exchange.Name = "Exchange";
-            Exchange.Size = new System.Drawing.Size(86, 35);
-            Exchange.TabIndex = 63;
-            Exchange.Text = "< === >";
-            Exchange.UseVisualStyleBackColor = false;
+            SWAP.BackColor = System.Drawing.Color.DarkGreen;
+            SWAP.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            SWAP.FlatAppearance.BorderSize = 3;
+            SWAP.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Red;
+            SWAP.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
+            SWAP.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            SWAP.ForeColor = System.Drawing.Color.Yellow;
+            SWAP.Location = new System.Drawing.Point(0, 68);
+            SWAP.Name = "SWAP";
+            SWAP.Size = new System.Drawing.Size(86, 35);
+            SWAP.TabIndex = 63;
+            SWAP.Text = "< === >";
+            SWAP.UseVisualStyleBackColor = false;
+            SWAP.Click += SWAP_Click;
             // 
             // MainForm
             // 
@@ -913,7 +916,7 @@
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.Black;
             ClientSize = new System.Drawing.Size(1013, 125);
-            Controls.Add(Exchange);
+            Controls.Add(SWAP);
             Controls.Add(textBox6);
             Controls.Add(textBox5);
             Controls.Add(SubvolumeGainTrackBar);
@@ -974,7 +977,7 @@
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "MainForm";
-            Text = "The101Box v 15 - by Kees, ON9KVE - COM8";
+            Text = "The101Box v 16 - by Kees, ON9KVE - COM4";
             TransparencyKey = System.Drawing.Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();
@@ -1037,7 +1040,7 @@
         private System.Windows.Forms.TrackBar SubvolumeGainTrackBar;
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.Button Exchange;
+        private System.Windows.Forms.Button SWAP;
     }
 }
 

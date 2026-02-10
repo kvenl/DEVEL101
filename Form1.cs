@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.IO.Ports;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,8 +10,8 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
-// Version : 16-4 (09 feb 26); 
-// Name    : The101Box Yaesu FTDX101 @ COM4
+// Version : 16-x (09 feb 26); 
+// Name    : The101Box Yaesu FTDX101 @ COMx
 
 
 namespace The101Box
@@ -43,12 +44,9 @@ namespace The101Box
             ExtTuneButton.FlatAppearance.BorderColor = Color.White; // Set border color
             ExtTuneButton.Paint += TuneButton_Paint;
 
-            // Rechterknop RX1+RX2 uit op 
-         //   RX12B.MouseDown += RX12B_MouseDown;
-         //   RFTOGGLE.MouseClick += RFB_click;
-         //   SWAP.Click += SWAP_Click;
 
-            Serial_Port = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.Two)
+            string portName = SelectSerialPort();
+            Serial_Port = new SerialPort(portName, 38400, Parity.None, 8, StopBits.Two)
             {
                 Handshake = Handshake.None,
                 RtsEnable = true,
@@ -550,6 +548,45 @@ namespace The101Box
         private void SWAP_Click(object sender, EventArgs e)
         {
             IssueCmd("SV;");
+        }
+
+        private string SelectSerialPort()
+        {
+            string[] allPorts = SerialPort.GetPortNames();
+            
+            // Filter to only COM0-COM9
+            string[] ports = allPorts
+                .Where(p => p.Length == 4 && p.StartsWith("COM") && char.IsDigit(p[3]) && p[3] <= '9')
+                .OrderBy(p => p)
+                .ToArray();
+            
+            if (ports.Length == 0)
+            {
+                MessageBox.Show("No serial ports (COM0-COM9) found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return "COM4"; // Fallback
+            }
+            
+            if (ports.Length == 1)
+                return ports[0];
+            
+            // Multiple ports - show selection dialog
+            using (var form = new Form())
+            {
+                form.Text = "Select Serial Port";
+                form.Width = 100;
+                form.Height = 100;
+                form.StartPosition = FormStartPosition.CenterParent;
+                
+                var combo = new ComboBox { Dock = DockStyle.Top, DataSource = ports };
+                var btnOK = new Button { Text = "OK", Dock = DockStyle.Bottom };
+                
+                btnOK.Click += (s, e) => { form.DialogResult = DialogResult.OK; form.Close(); };
+                
+                form.Controls.Add(combo);
+                form.Controls.Add(btnOK);
+                
+                return form.ShowDialog() == DialogResult.OK ? (string)combo.SelectedItem : "COM4";
+            }
         }
     }
 }

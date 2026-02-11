@@ -30,22 +30,28 @@ namespace The101Box
         {
             InitializeComponent();
 
+            // Wire up the FormClosing event handler
+            this.FormClosing += MainForm_FormClosing;
+
             // Attach event handlers for sliders
             rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
             volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
 
             // Ensure External Tuner button uses Flat style for color changes
             ExtTuneButton.FlatStyle = FlatStyle.Flat;
-            ExtTuneButton.BackColor = Color.DarkGreen; // Set initial background color
-            ExtTuneButton.ForeColor = Color.Yellow; // Set text color to yellow
-            ExtTuneButton.FlatAppearance.BorderSize = 0; // We'll draw our own border
-            ExtTuneButton.FlatAppearance.MouseDownBackColor = Color.Red; // Set mouse down color
-            ExtTuneButton.FlatAppearance.MouseOverBackColor = Color.Blue; // Set mouse over color
-            ExtTuneButton.FlatAppearance.BorderColor = Color.White; // Set border color
+            ExtTuneButton.BackColor = Color.DarkGreen;
+            ExtTuneButton.ForeColor = Color.Yellow;
+            ExtTuneButton.FlatAppearance.BorderSize = 0;
+            ExtTuneButton.FlatAppearance.MouseDownBackColor = Color.Red;
+            ExtTuneButton.FlatAppearance.MouseOverBackColor = Color.Blue;
+            ExtTuneButton.FlatAppearance.BorderColor = Color.White;
             ExtTuneButton.Paint += TuneButton_Paint;
 
-
             string portName = SelectSerialPort();
+            
+            // Update form title with selected COM port
+            this.Text = $"The101Box v 16 - by Kees, ON9KVE - {portName}";
+            
             Serial_Port = new SerialPort(portName, 38400, Parity.None, 8, StopBits.Two)
             {
                 Handshake = Handshake.None,
@@ -452,12 +458,12 @@ namespace The101Box
             if (e.Button == MouseButtons.Right) IssueCmd("FR11;");
         }
         private void RX12off_click(object sender, MouseEventArgs e) { IssueCmd("FR11;"); }
-        private void SSB1_click(object sender, MouseEventArgs e) { IssueCmd("SS0560000;"); }
-        private void SSB2_click(object sender, MouseEventArgs e) { IssueCmd("SS0570000;"); }
-        private void SSB3_click(object sender, MouseEventArgs e) { IssueCmd("SS0580000;"); }
-        private void SSB4_click(object sender, MouseEventArgs e) { IssueCmd("SS0590000;"); }
-        private void SSB5_click(object sender, MouseEventArgs e) { IssueCmd("SS0540000;"); }
-        private void SSB6_click(object sender, MouseEventArgs e) { IssueCmd("SS0550000;"); }
+        private void SSB1_click(object sender, EventArgs e) { IssueCmd("SS0560000;"); }
+        private void SSB2_click(object sender, EventArgs e) { IssueCmd("SS0570000;"); }
+        private void SSB3_click(object sender, EventArgs e) { IssueCmd("SS0580000;"); }
+        private void SSB4_click(object sender, EventArgs e) { IssueCmd("SS0590000;"); }
+        private void SSB5_click(object sender, EventArgs e) { IssueCmd("SS0540000;"); }
+        private void SSB6_click(object sender, EventArgs e) { IssueCmd("SS0550000;"); }
 
 
         private void textBox1_TextChanged_1(object sender, EventArgs e) { }
@@ -552,41 +558,105 @@ namespace The101Box
 
         private string SelectSerialPort()
         {
-            string[] allPorts = SerialPort.GetPortNames();
-            
-            // Filter to only COM0-COM9
-            string[] ports = allPorts
-                .Where(p => p.Length == 4 && p.StartsWith("COM") && char.IsDigit(p[3]) && p[3] <= '9')
-                .OrderBy(p => p)
-                .ToArray();
-            
-            if (ports.Length == 0)
+            try
             {
-                MessageBox.Show("No serial ports (COM0-COM9) found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return "COM4"; // Fallback
+                string[] allPorts = SerialPort.GetPortNames();
+                
+                // Filter to COM0-COM20
+                string[] ports = allPorts
+                    .Where(p => p.StartsWith("COM") && int.TryParse(p.Substring(3), out int portNum) && portNum >= 0 && portNum <= 20)
+                    .OrderBy(p => int.Parse(p.Substring(3)))  // Sort numerically
+                    .ToArray();
+                
+                if (ports.Length == 0)
+                {
+                    MessageBox.Show("No serial ports (COM0-COM20) found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return "COM4";
+                }
+                
+                if (ports.Length == 1)
+                {
+                    string selectedPort = ports[0];
+                    Properties.Settings.Default.SerialPort = selectedPort;
+                    Properties.Settings.Default.Save();
+                    MessageBox.Show($"Using port: {selectedPort}", "Serial Port", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return selectedPort;
+                }
+                
+                // Multiple ports - show selection dialog
+                using (var form = new Form())
+                {
+                    form.Text = "Select Serial Port";
+                    form.Width = 250;
+                    form.Height = 150;
+                    form.StartPosition = FormStartPosition.CenterScreen;
+                    form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                    form.MaximizeBox = false;
+                    form.MinimizeBox = false;
+                    
+                    var label = new Label 
+                    { 
+                        Text = "Available Ports (COM0-COM20):", 
+                        Dock = DockStyle.Top, 
+                        Height = 25, 
+                        Padding = new Padding(10, 5, 10, 0)
+                    };
+                    
+                    var combo = new ComboBox 
+                    { 
+                        Dock = DockStyle.Top,
+                        DropDownStyle = ComboBoxStyle.DropDownList,
+                        Height = 30
+                    };
+                    combo.DataSource = ports.ToList();
+                    
+                    // Pre-select the saved port if it exists
+                    string savedPort = Properties.Settings.Default.SerialPort;
+                    if (!string.IsNullOrEmpty(savedPort) && ports.Contains(savedPort))
+                    {
+                        combo.SelectedItem = savedPort;
+                    }
+                    else if (combo.Items.Count > 0)
+                    {
+                        combo.SelectedIndex = 0;
+                    }
+                    
+                    var btnOK = new Button 
+                    { 
+                        Text = "OK", 
+                        Dock = DockStyle.Bottom,
+                        Height = 40,
+                        DialogResult = DialogResult.OK
+                    };
+                    
+                    form.Controls.Add(btnOK);
+                    form.Controls.Add(combo);
+                    form.Controls.Add(label);
+                    form.AcceptButton = btnOK;
+                    
+                    if (form.ShowDialog() == DialogResult.OK)
+                    {
+                        string selectedPort = (string)combo.SelectedItem;
+                        Properties.Settings.Default.SerialPort = selectedPort;
+                        Properties.Settings.Default.Save();
+                        return selectedPort;
+                    }
+                    
+                    return "COM4";
+                }
             }
-            
-            if (ports.Length == 1)
-                return ports[0];
-            
-            // Multiple ports - show selection dialog
-            using (var form = new Form())
+            catch (Exception ex)
             {
-                form.Text = "Select Serial Port";
-                form.Width = 100;
-                form.Height = 100;
-                form.StartPosition = FormStartPosition.CenterParent;
-                
-                var combo = new ComboBox { Dock = DockStyle.Top, DataSource = ports };
-                var btnOK = new Button { Text = "OK", Dock = DockStyle.Bottom };
-                
-                btnOK.Click += (s, e) => { form.DialogResult = DialogResult.OK; form.Close(); };
-                
-                form.Controls.Add(combo);
-                form.Controls.Add(btnOK);
-                
-                return form.ShowDialog() == DialogResult.OK ? (string)combo.SelectedItem : "COM4";
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return "COM4";
             }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            cts.Cancel();
+            if (Serial_Port?.IsOpen == true)
+                Serial_Port.Close();
         }
     }
 }

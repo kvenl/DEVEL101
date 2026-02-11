@@ -104,7 +104,7 @@ namespace The101Box
             RFSQL_box.Location = new Point(84, 103);
             RFSQL_box.Margin = new System.Windows.Forms.Padding(0);
             RFSQL_box.Name = "RFSQL_box";
-            RFSQL_box.Size = new Size(84, 20);
+            RFSQL_box.Size = new Size(84, 18);
             RFSQL_box.TabIndex = 4;
             RFSQL_box.TabStop = false;
             RFSQL_box.Text = "<RF/SQL>";
@@ -251,7 +251,7 @@ namespace The101Box
             DSPMOD_box.Location = new Point(506, 103);
             DSPMOD_box.Margin = new System.Windows.Forms.Padding(0);
             DSPMOD_box.Name = "DSPMOD_box";
-            DSPMOD_box.Size = new Size(84, 20);
+            DSPMOD_box.Size = new Size(84, 18);
             DSPMOD_box.TabIndex = 22;
             DSPMOD_box.TabStop = false;
             DSPMOD_box.Text = "<DSPMOD>";
@@ -266,7 +266,7 @@ namespace The101Box
             MODE_box.Location = new Point(425, 103);
             MODE_box.Margin = new System.Windows.Forms.Padding(0);
             MODE_box.Name = "MODE_box";
-            MODE_box.Size = new Size(84, 20);
+            MODE_box.Size = new Size(84, 18);
             MODE_box.TabIndex = 23;
             MODE_box.TabStop = false;
             MODE_box.Text = "<MODE>";
@@ -377,7 +377,7 @@ namespace The101Box
             ANT_box.Location = new Point(253, 103);
             ANT_box.Margin = new System.Windows.Forms.Padding(0);
             ANT_box.Name = "ANT_box";
-            ANT_box.Size = new Size(84, 20);
+            ANT_box.Size = new Size(84, 18);
             ANT_box.TabIndex = 31;
             ANT_box.TabStop = false;
             ANT_box.Text = "<ANT>";
@@ -392,7 +392,7 @@ namespace The101Box
             IPO_box.Location = new Point(337, 103);
             IPO_box.Margin = new System.Windows.Forms.Padding(0);
             IPO_box.Name = "IPO_box";
-            IPO_box.Size = new Size(84, 20);
+            IPO_box.Size = new Size(84, 18);
             IPO_box.TabIndex = 32;
             IPO_box.TabStop = false;
             IPO_box.Text = "<IPO>";
@@ -456,7 +456,7 @@ namespace The101Box
             RX_box.Location = new Point(168, 103);
             RX_box.Margin = new System.Windows.Forms.Padding(0);
             RX_box.Name = "RX_box";
-            RX_box.Size = new Size(84, 20);
+            RX_box.Size = new Size(84, 18);
             RX_box.TabIndex = 36;
             RX_box.TabStop = false;
             RX_box.Text = "<RX>";
@@ -520,7 +520,7 @@ namespace The101Box
             DSPSPAN_box.Location = new Point(588, 103);
             DSPSPAN_box.Margin = new System.Windows.Forms.Padding(0);
             DSPSPAN_box.Name = "DSPSPAN_box";
-            DSPSPAN_box.Size = new Size(84, 20);
+            DSPSPAN_box.Size = new Size(84, 18);
             DSPSPAN_box.TabIndex = 40;
             DSPSPAN_box.TabStop = false;
             DSPSPAN_box.Text = "<SPAN>";
@@ -834,7 +834,7 @@ namespace The101Box
             textBox4.Location = new Point(827, 103);
             textBox4.Margin = new System.Windows.Forms.Padding(0);
             textBox4.Name = "textBox4";
-            textBox4.Size = new Size(84, 20);
+            textBox4.Size = new Size(84, 18);
             textBox4.TabIndex = 58;
             textBox4.TabStop = false;
             textBox4.Text = "<INT TUN>";
@@ -1067,7 +1067,7 @@ namespace The101Box
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "MainForm";
-            Text = "The101Box v 16 - by Kees, ON9KVE - COM4";
+            Text = "The101Box v 16 - by Kees, ON9KVE -";
             TransparencyKey = Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();

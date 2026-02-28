@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace The101Box
+namespace DEVEL101
 {
     partial class MainForm
     {
@@ -143,8 +143,7 @@ namespace The101Box
             ExtTuneButton.TabIndex = 8;
             ExtTuneButton.Text = "Ext Tuner";
             ExtTuneButton.UseVisualStyleBackColor = false;
-            ExtTuneButton.MouseDown += TuneButton_MouseDown;
-            ExtTuneButton.MouseUp += TuneButton_MouseUp;
+            // MouseDown / MouseUp wired in InitializeTrackBarEvents()
             // 
             // CursorB
             // 
@@ -556,7 +555,7 @@ namespace The101Box
             rfGainTrackBar.TickFrequency = 16;
             rfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
             rfGainTrackBar.Value = 255;
-            rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
+            // ValueChanged wired in InitializeTrackBarEvents()
             // 
             // volumeGainTrackBar
             // 
@@ -852,7 +851,7 @@ namespace The101Box
             SubrfGainTrackBar.TickFrequency = 16;
             SubrfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
             SubrfGainTrackBar.Value = 255;
-            SubrfGainTrackBar.ValueChanged += SubrfGainTrackBar_ValueChanged;
+            // ValueChanged wired in InitializeTrackBarEvents()
             // 
             // SubvolumeGainTrackBar
             // 
@@ -865,7 +864,7 @@ namespace The101Box
             SubvolumeGainTrackBar.TabIndex = 60;
             SubvolumeGainTrackBar.TickFrequency = 16;
             SubvolumeGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
-            SubvolumeGainTrackBar.ValueChanged += SubvolumeGainTrackBar_ValueChanged;
+            // ValueChanged wired in InitializeTrackBarEvents()
             // 
             // textBox5
             // 

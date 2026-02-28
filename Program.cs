@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace The101Box
+namespace DEVEL101
 {
     static class Program
     {

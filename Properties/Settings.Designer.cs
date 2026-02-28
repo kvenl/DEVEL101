@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace The101Box.Properties {
+namespace DEVEL101.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -32,6 +32,30 @@ namespace The101Box.Properties {
             }
             set {
                 this["SerialPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
+        public global::System.Drawing.Point FormLocation {
+            get {
+                return ((global::System.Drawing.Point)(this["FormLocation"]));
+            }
+            set {
+                this["FormLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsLocationSaved {
+            get {
+                return ((bool)(this["IsLocationSaved"]));
+            }
+            set {
+                this["IsLocationSaved"] = value;
             }
         }
     }

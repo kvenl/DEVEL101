@@ -1,95 +1,299 @@
-ï»¿using System;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
-// 
-// Version : 17-x (15 feb 26); 
-// Name    : The101Box Yaesu FTDX101 @ COMx
+//
+// Version : 18-x (feb 26)
+// Name    : DEVEL101 Yaesu FTDX101D @ COMx
 
 
-namespace The101Box
+namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        public readonly SerialPort Serial_Port;
-        public string temp, mode, Rfsql, Dspmod, Dspspan, RfsqlD,
-            DspmodD, DspspanD, FColorB, Ptemp, Pstr, Mode, ModeD, Dspant, DspantD, Dspipo, DspipoD, DspRx, DspRxD, SButton, DScopspan, Bar = "";
-        public decimal TempD, tempnum, Rfsqlnum, Dsppodnum, SecondNum;
+        #region CAT Command Constants
+        private const string CMD_TEMP       = "RM9;";
+        private const string CMD_RFSQL_R    = "EX030107;";
+        private const string CMD_RFSQL_ON   = "EX0301071;";
+        private const string CMD_RFSQL_OFF  = "EX0301070;";
+        private const string CMD_DSPMOD_R   = "SS06;";
+        private const string CMD_DSPSPAN_R  = "SS05;";
+        private const string CMD_MODE_R     = "MD0;";
+        private const string CMD_ANT_R      = "AN0;";
+        private const string CMD_IPO_R      = "PA0;";
+        private const string CMD_RX_R       = "FR;";
+        private const string CMD_RFGAIN_R   = "RG0;";
+        private const string CMD_VOL_R      = "AG0;";
+        private const string CMD_PWR_R      = "PC;";
+        private const string CMD_SUBRF_R    = "RG1;";
+        private const string CMD_SUBVOL_R   = "AG1;";
+        private const string CMD_FREQA_R    = "FA;";
+        private const string CMD_FREQB_R    = "FB;";
+        private const string CMD_TUNER_R    = "AC;";
+        private const string CMD_SWAP       = "SV;";
+        private const string CMD_CENTER     = "SS0650000;";
+        private const string CMD_CURSOR     = "SS0680000;";
+        private const string CMD_FIX        = "SS06B0000;";
+        #endregion
 
-        private CancellationTokenSource cts = new();
-        private bool rfSqlOn = false; // false for RF, true for Squelch
+        // --- Serial port ---
+        private SerialPort serialPort;
+        private readonly object serialLock = new object();
 
+        // --- Poll loop ---
+        private CancellationTokenSource cts;
+
+        // --- Slider debounce (150 ms) ---
+        private System.Windows.Forms.Timer sliderDebounceTimer;
+        private readonly Dictionary<TrackBar, string> pendingSliderCommands = new();
+        private bool isUpdatingFromRadio = false;
+
+        // --- COM port controls (programmatic — can be moved to designer later) ---
+        private ComboBox comPortComboBox;
+        private Button ConnectButton;
+        private Button DisconnectButton;
+
+        // --- State ---
+        private bool   rfSqlOn   = false;
+        private string Bar       = "";
+        private string savedMode = "";
+        private string savedPstr = "";
+        private string FColorB   = "Cyan";
+
+        // =================================================================
         public MainForm()
         {
             InitializeComponent();
 
-            // Wire up the FormClosing event handler
-            this.FormClosing += MainForm_FormClosing;
+            // Restore window position (multi-monitor safe)
+            if (Properties.Settings.Default.IsLocationSaved)
+            {
+                Point saved = Properties.Settings.Default.FormLocation;
+                if (Screen.AllScreens.Any(s => s.WorkingArea.Contains(saved)))
+                {
+                    this.StartPosition = FormStartPosition.Manual;
+                    this.Location = saved;
+                }
+            }
 
-            // Attach event handlers for sliders
-            rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
-            volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
+            // Slider debounce timer
+            sliderDebounceTimer = new System.Windows.Forms.Timer { Interval = 150 };
+            sliderDebounceTimer.Tick += SliderDebounceTimer_Tick;
 
-            // Ensure External Tuner button uses Flat style for color changes
+            // ExtTuneButton styling
             ExtTuneButton.FlatStyle = FlatStyle.Flat;
-            ExtTuneButton.BackColor = Color.DarkGreen;
-            ExtTuneButton.ForeColor = Color.Yellow;
-            ExtTuneButton.FlatAppearance.BorderSize = 0;
-            ExtTuneButton.FlatAppearance.MouseDownBackColor = Color.Red;
-            ExtTuneButton.FlatAppearance.MouseOverBackColor = Color.Blue;
+            ExtTuneButton.FlatAppearance.BorderSize  = 0;
             ExtTuneButton.FlatAppearance.BorderColor = Color.White;
             ExtTuneButton.Paint += TuneButton_Paint;
-
-            string portName = SelectSerialPort();
-            
-            // Update form title with selected COM port
-            this.Text = $"The101Box v 17 - by Kees, ON9KVE - {portName}";
-            
-            Serial_Port = new SerialPort(portName, 38400, Parity.None, 8, StopBits.Two)
-            {
-                Handshake = Handshake.None,
-                RtsEnable = true,
-                ReadTimeout = 5000
-            };
-
-            // Open the serial port on a background thread so UI initialization isn't blocked.
-            // Enable UI controls only after the port is opened successfully.
+            SetButtonActive(ExtTuneButton, false);
             ExtTuneButton.Enabled = false;
 
-            Task.Run(async () =>
+            // Create COM port controls row
+            CreatePortControls();
+
+            // Wire all events — not in designer
+            InitializeTrackBarEvents();
+
+            // Populate COM port list
+            LoadAvailablePorts();
+
+            this.Text = "DEVEL101 v18 - by Kees, ON9KVE - Disconnected";
+            this.FormClosing += MainForm_FormClosing;
+        }
+
+        // =================================================================
+        #region Serial Port Controls (programmatic)
+
+        private void CreatePortControls()
+        {
+            // Expand form height for the new control row
+            this.ClientSize = new System.Drawing.Size(this.ClientSize.Width, this.ClientSize.Height + 33);
+
+            var portLabel = new Label
+            {
+                Text      = "PORT:",
+                ForeColor = Color.Yellow,
+                BackColor = Color.Black,
+                Font      = new Font("Verdana", 7F, FontStyle.Bold),
+                AutoSize  = true,
+                Location  = new Point(3, 135)
+            };
+
+            comPortComboBox = new ComboBox
+            {
+                Location      = new Point(46, 130),
+                Size          = new Size(110, 25),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                DrawMode      = DrawMode.OwnerDrawFixed,
+                BackColor     = Color.DarkGreen,
+                ForeColor     = Color.Yellow,
+                Font          = new Font("Verdana", 7F, FontStyle.Bold)
+            };
+
+            ConnectButton = new Button
+            {
+                Location                = new Point(162, 128),
+                Size                    = new Size(78, 25),
+                Text                    = "Connect",
+                FlatStyle               = FlatStyle.Flat,
+                Font                    = new Font("Verdana", 7F, FontStyle.Bold),
+                ForeColor               = Color.Yellow,
+                BackColor               = Color.DarkGreen,
+                UseVisualStyleBackColor = false
+            };
+            ConnectButton.FlatAppearance.BorderColor = Color.White;
+
+            DisconnectButton = new Button
+            {
+                Location                = new Point(244, 128),
+                Size                    = new Size(90, 25),
+                Text                    = "Disconnect",
+                FlatStyle               = FlatStyle.Flat,
+                Font                    = new Font("Verdana", 7F, FontStyle.Bold),
+                ForeColor               = Color.Yellow,
+                BackColor               = Color.DarkRed,
+                UseVisualStyleBackColor = false
+            };
+            DisconnectButton.FlatAppearance.BorderColor = Color.White;
+
+            this.Controls.Add(portLabel);
+            this.Controls.Add(comPortComboBox);
+            this.Controls.Add(ConnectButton);
+            this.Controls.Add(DisconnectButton);
+        }
+
+        #endregion
+
+        // =================================================================
+        #region Serial Port Management
+
+        private void LoadAvailablePorts()
+        {
+            comPortComboBox.Items.Clear();
+            string[] ports = SerialPort.GetPortNames()
+                .Where(p => p.StartsWith("COM") &&
+                            int.TryParse(p.Substring(3), out int n) && n >= 0 && n <= 20)
+                .OrderBy(p => int.Parse(p.Substring(3)))
+                .ToArray();
+            comPortComboBox.Items.AddRange(ports);
+
+            string last = Properties.Settings.Default.SerialPort;
+            int    idx  = Array.IndexOf(ports, last);
+            comPortComboBox.SelectedIndex = idx >= 0 ? idx : (ports.Length > 0 ? 0 : -1);
+        }
+
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+            if (comPortComboBox.SelectedItem == null) return;
+            string portName = comPortComboBox.SelectedItem.ToString();
+            try
+            {
+                serialPort = new SerialPort(portName, 38400, Parity.None, 8, StopBits.Two)
+                {
+                    Handshake    = Handshake.None,
+                    RtsEnable    = true,
+                    ReadTimeout  = 500,
+                    WriteTimeout = 500
+                };
+                serialPort.Open();
+
+                Properties.Settings.Default.SerialPort = portName;
+                Properties.Settings.Default.Save();
+
+                this.Text = $"DEVEL101 v18 - by Kees, ON9KVE - {portName}";
+                ExtTuneButton.Enabled = true;
+
+                cts = new CancellationTokenSource();
+                Task.Run(async () =>
+                {
+                    await ReadRadioStatusAsync();
+                    await DoThisLoopAsync();
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to open port: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void DisconnectButton_Click(object sender, EventArgs e) => DisconnectSerialPort();
+
+        private void DisconnectSerialPort()
+        {
+            cts?.Cancel();
+            if (serialPort?.IsOpen == true) serialPort.Close();
+            serialPort?.Dispose();
+            serialPort = null;
+            if (IsHandleCreated)
+                BeginInvoke((Action)(() =>
+                {
+                    ExtTuneButton.Enabled = false;
+                    this.Text = "DEVEL101 v18 - by Kees, ON9KVE - Disconnected";
+                }));
+        }
+
+        #endregion
+
+        // =================================================================
+        #region Command Sending
+
+        /// <summary>Atomic send + read under lock — use for all poll and interactive commands.</summary>
+        private string SendReceive(string cmd)
+        {
+            if (serialPort == null || !serialPort.IsOpen) return "";
+            lock (serialLock)
             {
                 try
                 {
-                    Serial_Port.Open();
-
-                    // enable UI controls on the UI thread after port opens
-                    if (IsHandleCreated)
-                    {
-                        Invoke((Action)(() =>
-                        {
-                            ExtTuneButton.Enabled = true;
-                            ExtTuneButton.ForeColor = Color.Yellow;
-                        }));
-                    }
-
-                    // start the main loop after the port is open
-                    await DoThisLoopAsync();
+                    serialPort.Write(cmd);
+                    Thread.Sleep(6);
+                    return serialPort.ReadTo(";");
                 }
-                catch (Exception ex)
-                {
-                    if (IsHandleCreated)
-                    {
-                        Invoke((Action)(() => MessageBox.Show(this, "Failed to open serial port: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
-                    }
-                }
-            });
+                catch { return ""; }
+            }
+        }
+
+        /// <summary>Send only — no response expected (e.g. SET commands).</summary>
+        private void SendCommand(string cmd)
+        {
+            if (serialPort == null || !serialPort.IsOpen) return;
+            lock (serialLock)
+            {
+                try { serialPort.Write(cmd); Thread.Sleep(6); }
+                catch { }
+            }
+        }
+
+        #endregion
+
+        // =================================================================
+        #region Poll Loop
+
+        private static readonly string[] PollCmds =
+        {
+            CMD_TEMP,     CMD_RFSQL_R,  CMD_DSPMOD_R, CMD_DSPSPAN_R,
+            CMD_MODE_R,   CMD_ANT_R,    CMD_IPO_R,    CMD_RX_R,
+            CMD_RFGAIN_R, CMD_VOL_R,    CMD_PWR_R,
+            CMD_SUBRF_R,  CMD_SUBVOL_R,
+            CMD_FREQA_R,  CMD_FREQB_R,  CMD_TUNER_R
+        };
+
+        private async Task ReadRadioStatusAsync()
+        {
+            foreach (string cmd in PollCmds)
+            {
+                if (cts.IsCancellationRequested) return;
+                ProcessResponse(SendReceive(cmd));
+                await Task.Delay(60);
+            }
         }
 
         private async Task DoThisLoopAsync()
@@ -100,627 +304,383 @@ namespace The101Box
             {
                 try
                 {
-                    // Discard buffers at the start of each loop to prevent stale data
-                    Serial_Port.DiscardInBuffer();
-                    Serial_Port.DiscardOutBuffer();
-
-                    IssueCmd("RM9;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 6)
+                    lock (serialLock)
                     {
-                        Ptemp = temp.Substring(3, 3);
-                        tempnum = Convert.ToDecimal(Ptemp);
-                        TempD = Decimal.Floor((tempnum / 2.3M) - 6);
-                    }
-                    else
-                    {
-                        TempD = 0;
+                        serialPort?.DiscardInBuffer();
+                        serialPort?.DiscardOutBuffer();
                     }
 
-                    if (TempD > 40)
+                    foreach (string cmd in PollCmds)
                     {
-                        FColorB = "Red";
-                        Console.Beep(3000, 1000);
-                    }
-                    else if (TempD > 33)
-                    {
-                        FColorB = "Orange";
-                    }
-                    else
-                    {
-                        FColorB = "Cyan";
+                        if (cts.IsCancellationRequested) break;
+                        ProcessResponse(SendReceive(cmd));
                     }
 
-                    IssueCmd("EX030107;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 9)
-                    {
-                        Rfsql = temp.Substring(8, 1);
-                        RfsqlD = Rfsql == "0" ? "RF" : "Squelch";
-                    }
-                    else
-                    {
-                        RfsqlD = "RF";
-                    }
-
-
-                    IssueCmd("SS06;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        Dspmod = temp.Substring(4, 1);
-                        DspmodD = Dspmod switch
-                        {
-                            "8" => "CURSOR",
-                            "5" => "CENTER",
-                            _ => "FIX"
-                        };
-                    }
-                    else
-                    {
-                        DspmodD = "FIX";
-                    }
-
-                    IssueCmd("SS05;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        Dspspan = temp.Substring(4, 1);
-                        DspspanD = Dspspan switch
-                        {
-                            "9" => "1 M",
-                            "4" => "20k",
-                            "5" => "50k", 
-                            "6" => "100k",
-                            "7" => "200k",
-                            "8" => "500k",
-                            _ => "*OTHER*"
-                        };
-                    }
-                    else
-                    {
-                        DspspanD = "*OTHER*";
-                    }
-
-                    IssueCmd("MD0;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 4)
-                    {
-                        Mode = temp.Substring(3, 1);
-                        ModeD = Mode switch
-                        {
-                            "1" => "LSB",
-                            "2" => "USB",
-                            "3" => "CW",
-                            "4" => "FM",
-                            "5" => "AM",
-                            "C" => "DIG-U",
-                            _ => "???",
-                        };
-                    }
-                    else
-                    {
-                        ModeD = "???";
-                    }
-
-                    IssueCmd("AN0;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 4)
-                    {
-                        Dspant = temp.Substring(3, 1);
-                        DspantD = Dspant switch
-                        {
-                            "1" => "ANT1",
-                            "2" => "ANT2",
-                            "3" => "ANT3/RX",
-                            _ => "???"
-                        };
-                    }
-                    else
-                    {
-                        DspantD = "???";
-                    }
-
-                    IssueCmd("PA0;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 4)
-                    {
-                        Dspipo = temp.Substring(3, 1);
-                        DspipoD = Dspipo switch
-                        {
-                            "0" => "IPO",
-                            "1" => "AMP1",
-                            "2" => "AMP2",
-                            _ => "???"
-                        };
-                    }
-                    else
-                    {
-                        DspipoD = "???";
-                    }
-
-                    IssueCmd("FR;");
-                    temp = Serial_Port.ReadTo(";");
-                    DspRx = temp;
-                    DspRxD = DspRx switch
-                    {
-                        "FR01" => "RX 1",
-                        "FR10" => "RX 2",
-                        "FR00" => "RX 1 + 2",
-                        "FR11" => "RXs off",
-                        _ => "???"
-                    };
-
-                    string Blokje = "â–ˆ";
-                    Bar = (Bar == Blokje) ? " " : Blokje;
-
-                    // Update UI
-                    UpdateTextBox(TEMP_box, $"{TempD:00}Â°C", Color.FromName(FColorB));
-                    UpdateTextBox(RFSQL_box, RfsqlD);
-                    UpdateTextBox(DSPMOD_box, DspmodD);
-                    UpdateTextBox(DSPSPAN_box, DspspanD);
-                    UpdateTextBox(MODE_box, ModeD);
-                    UpdateTextBox(ANT_box, DspantD);
-                    UpdateTextBox(IPO_box, DspipoD);
-                    UpdateTextBox(RX_box, DspRxD);
+                    Bar = Bar == "¦" ? " " : "¦";
                     UpdateTextBox(BUSY_box, Bar);
-
-
-                    // Sync sliders with radio values
-                    // Detach event handlers to prevent sending commands when setting values
-                    rfGainTrackBar.ValueChanged -= RfGainTrackBar_ValueChanged;
-                    volumeGainTrackBar.ValueChanged -= VolumeGainTrackBar_ValueChanged;
-                    pwrControlTrackBar.ValueChanged -= PwrControlTrackBar_ValueChanged;
-
-                    // Read and set RF gain slider
-                    IssueCmd("RG0;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        string rgValueStr = temp.Substring(3, 3); // Extract the RF gain value
-                        if (int.TryParse(rgValueStr, out int rgValue))
-                        {
-                            int sliderValue = rfGainTrackBar.Maximum - rgValue; // Invert the value for the slider
-                            rfGainTrackBar.Value = Math.Max(rfGainTrackBar.Minimum, Math.Min(rfGainTrackBar.Maximum, sliderValue));
-                            UpdateTextBox(textBox1, sliderValue.ToString("D3")); // Display the slider value in textBox1
-                        }
-                    }
-
-                    // Read and set volume slider
-                    IssueCmd("AG0;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        string agValueStr = temp.Substring(3, 3);
-                        if (int.TryParse(agValueStr, out int agValue))
-                        {
-                            volumeGainTrackBar.Value = Math.Max(volumeGainTrackBar.Minimum, Math.Min(volumeGainTrackBar.Maximum, agValue));
-                            UpdateTextBox(textBox2, agValueStr); // Display the Volume gain value in TextBox2
-                        }
-                    }
-
-                    // Read and set power slider
-                    IssueCmd("PC;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        string pcValueStr = temp.Substring(2, 3); // Extract the power value
-                        if (int.TryParse(pcValueStr, out int pcValue))
-                        {
-                            pwrControlTrackBar.Value = Math.Max(pwrControlTrackBar.Minimum, Math.Min(pwrControlTrackBar.Maximum, pcValue));
-                            UpdateTextBox(textBox3, pcValue.ToString("D3")); // Display the power value in textBox3
-                        }
-                    }
-
-                    // Reattach event handlers
-                    rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
-                    volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
-                    pwrControlTrackBar.ValueChanged += PwrControlTrackBar_ValueChanged;
-
-                    // Read and set Sub RF gain slider
-                    IssueCmd("RG1;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        string rgValueStr = temp.Substring(3, 3); // Extract the Sub RF gain value
-                        if (int.TryParse(rgValueStr, out int rgValue))
-                        {
-                            int sliderValue = SubrfGainTrackBar.Maximum - rgValue; // Invert the value for the slider
-                            SubrfGainTrackBar.Value = Math.Max(SubrfGainTrackBar.Minimum, Math.Min(SubrfGainTrackBar.Maximum, sliderValue));
-                            UpdateTextBox(textBox5, sliderValue.ToString("D3")); // Display the slider value in textBox5
-                        }
-                    }
-
-                    // Read and set Sub volume slider
-                    IssueCmd("AG1;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        string agValueStr = temp.Substring(3, 3);
-                        if (int.TryParse(agValueStr, out int agValue))
-                        {
-                            SubvolumeGainTrackBar.Value = Math.Max(SubvolumeGainTrackBar.Minimum, Math.Min(SubvolumeGainTrackBar.Maximum, agValue));
-                            UpdateTextBox(textBox6, agValueStr); // Display the Sub volume value in textBox6
-                        }
-                    }
-
-                    IssueCmd("FA;");
-                    temp = Serial_Port.ReadTo(";");
-                    string mainFreq = "???";
-                    if (temp.Length >= 4) // FA + at least 1 digit + ;
-                    {
-                        string freqStr = temp.Substring(2, temp.Length - 3); // Extract digits between FA and ;
-                        if (long.TryParse(freqStr, out long freqHz))
-                        {
-                            double freqMHz = freqHz / 100000.0; // Correct divisor for this radio
-                            mainFreq = $"{freqMHz,9:F3}"; // Right-align in 9 characters with 3 decimals
-                        }
-                    }
-
-                    IssueCmd("FB;");
-                    temp = Serial_Port.ReadTo(";");
-                    string subFreq = "???";
-                    if (temp.Length >= 4) // FB + at least 1 digit + ;
-                    {
-                        string freqStr = temp.Substring(2, temp.Length - 3); // Extract digits between FB and ;
-                        if (long.TryParse(freqStr, out long freqHz))
-                        {
-                            double freqMHz = freqHz / 100000.0; // Correct divisor for this radio
-                            subFreq = $"{freqMHz,9:F3}"; // Right-align in 9 characters with 3 decimals
-                        }
-                    }
-
-                    UpdateTextBox(FreqM_box, $"MAIN:{mainFreq} MHz");
-                    UpdateTextBox(FreqS_box, $"SUB :{subFreq} MHz");
-
-                    // Read and set internal tuner status
-                    IssueCmd("AC;");
-                    temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5 && temp.StartsWith("AC"))
-                    {
-                        // Response is ACxyz; we are interested in z at index 4
-                        char tunerStatus = temp[4];
-                        if (tunerStatus == '0')
-                        {
-                            UpdateTextBox(textBox4, "TUNE OFF", Color.Cyan);
-                        }
-                        else if (tunerStatus == '1')
-                        {
-                            UpdateTextBox(textBox4, "TUNE ON", Color.Red);
-                        }
-                    }
 
                     await Task.Delay(100, cts.Token);
                 }
+                catch (OperationCanceledException) { break; }
                 catch (Exception ex)
                 {
-                    string errorMsg = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Loop error: {ex.Message}";
-                    try
-                    {
-                        File.AppendAllText(logFilePath, errorMsg + Environment.NewLine);
-                    }
-                    catch
-                    {
-                        // If logging fails, silently ignore to avoid cascading errors
-                    }
-                    await Task.Delay(100, cts.Token); // Reduced delay on error to retry faster
+                    try { File.AppendAllText(logFilePath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Loop error: {ex.Message}{Environment.NewLine}"); }
+                    catch { }
+                    await Task.Delay(100);
                 }
             }
         }
 
-        private void Button1_Click(object sender, EventArgs e)
+        private void ProcessResponse(string resp)
         {
-            UpdateTextBox(TEMP_box, " ");
+            if (string.IsNullOrEmpty(resp)) return;
+
+            if (resp.StartsWith("RM9") && resp.Length >= 6)
+            {
+                decimal tempnum = Convert.ToDecimal(resp.Substring(3, 3));
+                decimal TempD   = decimal.Floor((tempnum / 2.3M) - 6);
+                FColorB = TempD > 40 ? "Red" : TempD > 33 ? "Orange" : "Cyan";
+                if (TempD > 40) Console.Beep(3000, 1000);
+                UpdateTextBox(TEMP_box, $"{TempD:00}°C", Color.FromName(FColorB));
+            }
+            else if (resp.StartsWith("EX030107") && resp.Length >= 9)
+            {
+                bool sq = resp[8] == '1';
+                rfSqlOn = sq;
+                UpdateTextBox(RFSQL_box, sq ? "Squelch" : "RF");
+            }
+            else if (resp.StartsWith("SS06") && resp.Length >= 5)
+            {
+                string d = resp[4] switch { '8' => "CURSOR", '5' => "CENTER", _ => "FIX" };
+                UpdateTextBox(DSPMOD_box, d);
+            }
+            else if (resp.StartsWith("SS05") && resp.Length >= 5)
+            {
+                string d = resp[4] switch
+                {
+                    '9' => "1 M", '4' => "20k",  '5' => "50k",
+                    '6' => "100k", '7' => "200k", '8' => "500k", _ => "*OTHER*"
+                };
+                UpdateTextBox(DSPSPAN_box, d);
+            }
+            else if (resp.StartsWith("MD0") && resp.Length >= 4)
+            {
+                string d = resp[3] switch
+                {
+                    '1' => "LSB", '2' => "USB", '3' => "CW",
+                    '4' => "FM",  '5' => "AM",  'C' => "DIG-U", _ => "???"
+                };
+                UpdateTextBox(MODE_box, d);
+            }
+            else if (resp.StartsWith("AN0") && resp.Length >= 4)
+            {
+                string d = resp[3] switch { '1' => "ANT1", '2' => "ANT2", '3' => "ANT3/RX", _ => "???" };
+                UpdateTextBox(ANT_box, d);
+            }
+            else if (resp.StartsWith("PA0") && resp.Length >= 4)
+            {
+                string d = resp[3] switch { '0' => "IPO", '1' => "AMP1", '2' => "AMP2", _ => "???" };
+                UpdateTextBox(IPO_box, d);
+            }
+            else if (resp.StartsWith("FR") && resp.Length >= 4)
+            {
+                string d = resp switch
+                {
+                    "FR01" => "RX 1", "FR10" => "RX 2",
+                    "FR00" => "RX 1 + 2", "FR11" => "RXs off", _ => "???"
+                };
+                UpdateTextBox(RX_box, d);
+            }
+            else if (resp.StartsWith("RG0") && resp.Length >= 6)
+            {
+                if (int.TryParse(resp.Substring(3, 3), out int v))
+                    SafeUpdateSlider(rfGainTrackBar, textBox1,
+                        rfGainTrackBar.Maximum - v, (rfGainTrackBar.Maximum - v).ToString("D3"));
+            }
+            else if (resp.StartsWith("AG0") && resp.Length >= 6)
+            {
+                if (int.TryParse(resp.Substring(3, 3), out int v))
+                    SafeUpdateSlider(volumeGainTrackBar, textBox2, v, v.ToString("D3"));
+            }
+            else if (resp.StartsWith("PC") && resp.Length >= 5)
+            {
+                if (int.TryParse(resp.Substring(2, 3), out int v))
+                    SafeUpdateSlider(pwrControlTrackBar, textBox3, v, v.ToString("D3"));
+            }
+            else if (resp.StartsWith("RG1") && resp.Length >= 6)
+            {
+                if (int.TryParse(resp.Substring(3, 3), out int v))
+                    SafeUpdateSlider(SubrfGainTrackBar, textBox5,
+                        SubrfGainTrackBar.Maximum - v, (SubrfGainTrackBar.Maximum - v).ToString("D3"));
+            }
+            else if (resp.StartsWith("AG1") && resp.Length >= 6)
+            {
+                if (int.TryParse(resp.Substring(3, 3), out int v))
+                    SafeUpdateSlider(SubvolumeGainTrackBar, textBox6, v, v.ToString("D3"));
+            }
+            else if (resp.StartsWith("FA") && resp.Length >= 4)
+            {
+                string freqStr = resp.Substring(2, resp.Length - 3); // FTDX101D-specific offset
+                if (long.TryParse(freqStr, out long freqHz))
+                    UpdateTextBox(FreqM_box, $"MAIN:{freqHz / 100000.0,9:F3} MHz");
+            }
+            else if (resp.StartsWith("FB") && resp.Length >= 4)
+            {
+                string freqStr = resp.Substring(2, resp.Length - 3); // FTDX101D-specific offset
+                if (long.TryParse(freqStr, out long freqHz))
+                    UpdateTextBox(FreqS_box, $"SUB :{freqHz / 100000.0,9:F3} MHz");
+            }
+            else if (resp.StartsWith("AC") && resp.Length >= 5)
+            {
+                bool on = resp[4] == '1';
+                UpdateTextBox(textBox4, on ? "TUNE ON" : "TUNE OFF", on ? Color.Red : Color.Cyan);
+            }
+        }
+
+        #endregion
+
+        // =================================================================
+        #region UI Helpers
+
+        private void SetButtonActive(Button btn, bool active)
+        {
+            btn.BackColor = active ? Color.DarkRed : Color.DarkGreen;
+            btn.ForeColor = Color.Yellow;
         }
 
         private void UpdateTextBox(TextBox tb, string text, Color? foreColor = null)
         {
             if (tb.InvokeRequired)
             {
-                tb.Invoke(() => UpdateTextBox(tb, text, foreColor));
+                tb.BeginInvoke(() => UpdateTextBox(tb, text, foreColor));
+                return;
             }
-            else
+            tb.Text = text;
+            if (foreColor.HasValue) tb.ForeColor = foreColor.Value;
+        }
+
+        /// <summary>Update a slider + display textbox from the radio — guards against feedback loops.</summary>
+        private void SafeUpdateSlider(TrackBar tb, TextBox display, int value, string displayStr)
+        {
+            if (tb.InvokeRequired)
             {
-                tb.Text = text;
-                if (foreColor.HasValue) tb.ForeColor = foreColor.Value;
+                tb.BeginInvoke(() => SafeUpdateSlider(tb, display, value, displayStr));
+                return;
             }
+            isUpdatingFromRadio = true;
+            tb.Value = Math.Clamp(value, tb.Minimum, tb.Maximum);
+            isUpdatingFromRadio = false;
+            if (display != null) display.Text = displayStr;
         }
 
-        private void TextBox1_TextChanged(object sender, EventArgs e) { }
-        private void TextBox2_TextChanged(object sender, EventArgs e) { }
+        #endregion
 
-        private void IssueCmd(string cmd)
-        {
-            Serial_Port.Write(cmd);
-            Thread.Sleep(6); // Increased to 60 ms to match other working programs' timing
-        }
+        // =================================================================
+        #region Event Wiring — InitializeTrackBarEvents
 
-        private void RFB_click(object sender, MouseEventArgs e)
+        private void InitializeTrackBarEvents()
         {
-            rfSqlOn = !rfSqlOn;
-            if (rfSqlOn)
-            {
-                IssueCmd("EX0301071;"); // Squelch
-                RFSQL_box.Text = "Squelch";
-            }
-            else
-            {
-                IssueCmd("EX0301070;"); // RF
-                RFSQL_box.Text = "RF";
-            }
-        }
-        private void TuneButton_MouseDown(object sender, MouseEventArgs e)
-        {
-            IssueCmd("MD0;");
-            mode = Serial_Port.ReadTo(";");
-            IssueCmd("PC;");
-            string resp = Serial_Port.ReadTo(";");
-            Pstr = resp[2..];
-            IssueCmd("PC010;");
-            IssueCmd("MD05;");
-            IssueCmd("MX1;");
-        }
-        private void TuneButton_MouseUp(object sender, MouseEventArgs e)
-        {
-            IssueCmd("MX0;");
-            string cmd = mode + ";";
-            IssueCmd(cmd);
-            cmd = "PC" + Pstr + ";";
-            IssueCmd(cmd);
-        }
-        private void Center_Click(object sender, MouseEventArgs e) { IssueCmd("SS0650000;"); }
-        private void Cursor_Click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("SS0650000;");
-            IssueCmd("SS0680000;");
-        }
-        private void Fix_Click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("SS0650000;");
-            IssueCmd("SS06B0000;");
-        }
-        private void USB_click(object sender, MouseEventArgs e) { IssueCmd("MD02;"); }
-        private void LSB_click(object sender, MouseEventArgs e) { IssueCmd("MD01;"); }
-        private void CW_click(object sender, MouseEventArgs e) { IssueCmd("MD03;"); }
-        private void FM_click(object sender, MouseEventArgs e) { IssueCmd("MD04;"); }
-        private void AM_click(object sender, MouseEventArgs e) { IssueCmd("MD05;"); }
-        private void DIG_click(object sender, MouseEventArgs e) { IssueCmd("MD0C;"); }
+            // Sliders
+            rfGainTrackBar.ValueChanged        += RfGainTrackBar_ValueChanged;
+            volumeGainTrackBar.ValueChanged    += VolumeGainTrackBar_ValueChanged;
+            pwrControlTrackBar.ValueChanged    += PwrControlTrackBar_ValueChanged;
+            SubrfGainTrackBar.ValueChanged     += SubrfGainTrackBar_ValueChanged;
+            SubvolumeGainTrackBar.ValueChanged += SubvolumeGainTrackBar_ValueChanged;
 
+            // External tuner button
+            ExtTuneButton.MouseDown  += TuneButton_MouseDown;
+            ExtTuneButton.MouseUp    += TuneButton_MouseUp;
+            ExtTuneButton.MouseEnter += TuneButton_MouseEnter;
+            ExtTuneButton.MouseLeave += TuneButton_MouseLeave;
 
-
-        private void ANT1B_click(object sender, MouseEventArgs e) { IssueCmd("AN01;"); }
-        private void ANT2B_click(object sender, MouseEventArgs e) { IssueCmd("AN02;"); }
-        private void ANT3RXB_click(object sender, MouseEventArgs e) { IssueCmd("AN03;"); }
-        private void IPOB_click(object sender, MouseEventArgs e) { IssueCmd("PA00;"); }
-        private void AMP1B_click(object sender, MouseEventArgs e) { IssueCmd("PA01;"); }
-        private void AMP2B_click(object sender, MouseEventArgs e) { IssueCmd("PA02;"); }
-        private void RX1B_click(object sender, MouseEventArgs e) { IssueCmd("FR01;"); }
-        private void RX2B_click(object sender, MouseEventArgs e) { IssueCmd("FR10;"); }
-        private void RX12B_click(object sender, MouseEventArgs e) { IssueCmd("FR00;"); }
-        private void RX12B_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right) IssueCmd("FR11;");
-        }
-        private void RX12off_click(object sender, MouseEventArgs e) { IssueCmd("FR11;"); }
-        private void SSB1_click(object sender, EventArgs e) { IssueCmd("SS0560000;"); }
-        private void SSB2_click(object sender, EventArgs e) { IssueCmd("SS0570000;"); }
-        private void SSB3_click(object sender, EventArgs e) { IssueCmd("SS0580000;"); }
-        private void SSB4_click(object sender, EventArgs e) { IssueCmd("SS0590000;"); }
-        private void SSB5_click(object sender, EventArgs e) { IssueCmd("SS0540000;"); }
-        private void SSB6_click(object sender, EventArgs e) { IssueCmd("SS0550000;"); }
-
-
-        private void textBox1_TextChanged_1(object sender, EventArgs e) { }
-        private void RX_box_TextChanged(object sender, EventArgs e) { }
-        private void FixB_Click(object sender, EventArgs e) { }
-
-        // --- External Tuner color change handlers ---
-        private void TuneButton_MouseEnter(object sender, EventArgs e) { ExtTuneButton.BackColor = Color.Blue; }
-        private void TuneButton_MouseLeave(object sender, EventArgs e) { ExtTuneButton.BackColor = Color.DarkGreen; }
-        private void TuneButton_MouseDown_Color(object sender, MouseEventArgs e) { ExtTuneButton.BackColor = Color.Red; }
-        private void TuneButton_MouseUp_Color(object sender, MouseEventArgs e)
-        {
-            if (ExtTuneButton.ClientRectangle.Contains(ExtTuneButton.PointToClient(Cursor.Position)))
-                ExtTuneButton.BackColor = Color.Blue;
-            else
-                ExtTuneButton.BackColor = Color.DarkGreen;
-        }
-        private void TuneButton_Paint(object sender, PaintEventArgs e)
-        {
-            var btn = sender as System.Windows.Forms.Button;
-            if (btn == null) return;
-            int thickness = 3;
-            using (var pen = new Pen(Color.White, thickness))
-            {
-                pen.Alignment = System.Drawing.Drawing2D.PenAlignment.Inset;
-                e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, btn.Width - thickness, btn.Height - thickness));
-            }
+            // COM port controls
+            ConnectButton.Click      += ConnectButton_Click;
+            DisconnectButton.Click   += DisconnectButton_Click;
+            comPortComboBox.DrawItem += ComboBox_DrawItem;
         }
 
-        private void RFB_click_1(object sender, MouseEventArgs e)
+        private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            rfSqlOn = !rfSqlOn;
-            if (rfSqlOn)
-            {
-                IssueCmd("EX0301071;"); // Squelch
-                RFSQL_box.Text = "Squelch";
-            }
-            else
-            {
-                IssueCmd("EX0301070;"); // RF
-                RFSQL_box.Text = "RF";
-            }
+            if (e.Index < 0) return;
+            var cb   = (ComboBox)sender;
+            bool sel = (e.State & DrawItemState.Selected) != 0;
+            using var bg = new SolidBrush(sel ? Color.Green : Color.DarkGreen);
+            e.Graphics.FillRectangle(bg, e.Bounds);
+            using var fg = new SolidBrush(cb.ForeColor);
+            e.Graphics.DrawString(cb.Items[e.Index].ToString(), e.Font, fg, e.Bounds);
         }
+
+        #endregion
+
+        // =================================================================
+        #region Slider Debounce
+
+        private void SliderDebounceTimer_Tick(object sender, EventArgs e)
+        {
+            sliderDebounceTimer.Stop();
+            foreach (var (_, cmd) in pendingSliderCommands)
+                SendCommand(cmd);
+            pendingSliderCommands.Clear();
+        }
+
+        private void QueueSliderCommand(TrackBar tb, string cmd)
+        {
+            pendingSliderCommands[tb] = cmd; // last value wins
+            sliderDebounceTimer.Stop();
+            sliderDebounceTimer.Start();
+        }
+
+        #endregion
+
+        // =================================================================
+        #region Slider Handlers
 
         private void RfGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
-            int displayedValue = rfGainTrackBar.Value; // Directly use the slider value for display
-            string value = displayedValue.ToString("D3");
-            UpdateTextBox(textBox1, value); // Display the value in textBox1
-            IssueCmd($"RG0{(rfGainTrackBar.Maximum - displayedValue):D3};"); // Send inverted value to the radio
+            if (isUpdatingFromRadio) return;
+            int val = rfGainTrackBar.Value;
+            UpdateTextBox(textBox1, val.ToString("D3"));
+            QueueSliderCommand(rfGainTrackBar, $"RG0{(rfGainTrackBar.Maximum - val):D3};");
         }
 
         private void VolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
-            string value = ((TrackBar)sender).Value.ToString("D3");
-            IssueCmd($"AG0{value};");
+            if (isUpdatingFromRadio) return;
+            string val = volumeGainTrackBar.Value.ToString("D3");
+            QueueSliderCommand(volumeGainTrackBar, $"AG0{val};");
         }
 
         private void PwrControlTrackBar_ValueChanged(object sender, EventArgs e)
         {
-            int displayedValue = pwrControlTrackBar.Value; // Get slider value
-            string value = displayedValue.ToString("D3"); // Format as 3 digits
-            UpdateTextBox(textBox3, value); // Update the display
-            IssueCmd($"PC{value};"); // Send the power control command
-        }
-
-        private void rfGainTrackBar_Scroll(object sender, EventArgs e)
-        {
-
+            if (isUpdatingFromRadio) return;
+            string val = pwrControlTrackBar.Value.ToString("D3");
+            UpdateTextBox(textBox3, val);
+            QueueSliderCommand(pwrControlTrackBar, $"PC{val};");
         }
 
         private void SubrfGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
-            int displayedValue = SubrfGainTrackBar.Value; // Directly use the slider value for display
-            string value = displayedValue.ToString("D3");
-            UpdateTextBox(textBox5, value); // Display the value in textBox5
-            IssueCmd($"RG1{(SubrfGainTrackBar.Maximum - displayedValue):D3};"); // Send inverted value to the radio
+            if (isUpdatingFromRadio) return;
+            int val = SubrfGainTrackBar.Value;
+            UpdateTextBox(textBox5, val.ToString("D3"));
+            QueueSliderCommand(SubrfGainTrackBar, $"RG1{(SubrfGainTrackBar.Maximum - val):D3};");
         }
 
         private void SubvolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
-            string value = ((TrackBar)sender).Value.ToString("D3");
-            UpdateTextBox(textBox5, value); // Display the value in textBox5
-            IssueCmd($"AG1{value};"); // Send the command with '1' as the third character
+            if (isUpdatingFromRadio) return;
+            string val = SubvolumeGainTrackBar.Value.ToString("D3");
+            UpdateTextBox(textBox6, val);
+            QueueSliderCommand(SubvolumeGainTrackBar, $"AG1{val};");
         }
 
-        private void IntTune_Click(object sender, EventArgs e)
-        {
-            IssueCmd("AC002;"); // Start tuning
-            IssueCmd("AC001;"); // Set tuning on 
+        #endregion
 
-        }
+        // =================================================================
+        #region Button Handlers
 
-        private void ItuneOn_Click(object sender, EventArgs e)
+        private void RFB_click(object sender, MouseEventArgs e)
         {
-            IssueCmd("AC001;"); // Turn internal tuner ON
-        }
-
-        private void ItuneOff_Click(object sender, EventArgs e)
-        {
-            IssueCmd("AC000;"); // Turn internal tuner OFF
-        }
-        private void SWAP_Click(object sender, EventArgs e)
-        {
-            IssueCmd("SV;");
+            rfSqlOn = !rfSqlOn;
+            SendCommand(rfSqlOn ? CMD_RFSQL_ON : CMD_RFSQL_OFF);
+            UpdateTextBox(RFSQL_box, rfSqlOn ? "Squelch" : "RF");
         }
 
-        private string SelectSerialPort()
+        private void TuneButton_MouseDown(object sender, MouseEventArgs e)
         {
-            string appNamespace = typeof(MainForm).Namespace;
-            try
-            {
-                string[] allPorts = SerialPort.GetPortNames();
-                
-                // Filter to COM0-COM20
-                string[] ports = allPorts
-                    .Where(p => p.StartsWith("COM") && int.TryParse(p.Substring(3), out int portNum) && portNum >= 0 && portNum <= 20)
-                    .OrderBy(p => int.Parse(p.Substring(3)))
-                    .ToArray();
-                
-                if (ports.Length == 0)
-                {
-                    MessageBox.Show("No serial ports (COM0-COM20) found!", $"{appNamespace} - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return "COM4";
-                }
-                
-                if (ports.Length == 1)
-                {
-                    string selectedPort = ports[0];
-                    Properties.Settings.Default.SerialPort = selectedPort;
-                    Properties.Settings.Default.Save();
-                    MessageBox.Show($"Using port: {selectedPort}", $"{appNamespace} - Serial Port", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return selectedPort;
-                }
-                
-                // Multiple ports - ALWAYS show selection dialog
-                using (var form = new Form())
-                {
-                    form.Text = $"{appNamespace} - Select Serial Port";
-                    form.Width = 250;
-                    form.Height = 150;
-                    form.StartPosition = FormStartPosition.CenterScreen;
-                    form.FormBorderStyle = FormBorderStyle.FixedDialog;
-                    form.MaximizeBox = false;
-                    form.MinimizeBox = false;
-                    
-                    var label = new Label 
-                    { 
-                        Text = "Available Ports (COM0-COM20):", 
-                        Dock = DockStyle.Top, 
-                        Height = 25, 
-                        Padding = new Padding(10, 5, 10, 0)
-                    };
-                    
-                    var combo = new ComboBox 
-                    { 
-                        Dock = DockStyle.Top,
-                        DropDownStyle = ComboBoxStyle.DropDownList,
-                        Height = 30
-                    };
-                    
-                    // Add items directly instead of using DataSource
-                    combo.Items.AddRange(ports);
-                    
-                    // Pre-select the saved port
-                    string savedPort = Properties.Settings.Default.SerialPort;
-                    int savedIndex = System.Array.IndexOf(ports, savedPort);
-                    
-                    if (savedIndex >= 0)
-                    {
-                        combo.SelectedIndex = savedIndex;
-                    }
-                    else
-                    {
-                        combo.SelectedIndex = 0;
-                    }
-                    
-                    var btnOK = new Button 
-                    { 
-                        Text = "OK", 
-                        Dock = DockStyle.Bottom,
-                        Height = 40,
-                        DialogResult = DialogResult.OK
-                    };
-                    
-                    form.Controls.Add(btnOK);
-                    form.Controls.Add(combo);
-                    form.Controls.Add(label);
-                    form.AcceptButton = btnOK;
-                    
-                    if (form.ShowDialog() == DialogResult.OK)
-                    {
-                        string selectedPort = (string)combo.SelectedItem;
-                        Properties.Settings.Default.SerialPort = selectedPort;
-                        Properties.Settings.Default.Save();
-                        return selectedPort;
-                    }
-                    
-                    return "COM4";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", $"{appNamespace} - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return "COM4";
-            }
+            savedMode = SendReceive(CMD_MODE_R);
+            string resp = SendReceive(CMD_PWR_R);
+            savedPstr = resp.Length >= 2 ? resp[2..] : "100";
+            SendCommand("PC010;");
+            SendCommand("MD05;");
+            SendCommand("MX1;");
         }
+
+        private void TuneButton_MouseUp(object sender, MouseEventArgs e)
+        {
+            SendCommand("MX0;");
+            if (!string.IsNullOrEmpty(savedMode)) SendCommand(savedMode + ";");
+            SendCommand("PC" + savedPstr + ";");
+        }
+
+        private void Center_Click(object sender, MouseEventArgs e)  { SendCommand(CMD_CENTER); }
+        private void Cursor_Click(object sender, MouseEventArgs e)  { SendCommand(CMD_CENTER); SendCommand(CMD_CURSOR); }
+        private void Fix_Click(object sender, MouseEventArgs e)     { SendCommand(CMD_CENTER); SendCommand(CMD_FIX); }
+        private void USB_click(object sender, MouseEventArgs e)     { SendCommand("MD02;"); }
+        private void LSB_click(object sender, MouseEventArgs e)     { SendCommand("MD01;"); }
+        private void CW_click(object sender, MouseEventArgs e)      { SendCommand("MD03;"); }
+        private void FM_click(object sender, MouseEventArgs e)      { SendCommand("MD04;"); }
+        private void AM_click(object sender, MouseEventArgs e)      { SendCommand("MD05;"); }
+        private void DIG_click(object sender, MouseEventArgs e)     { SendCommand("MD0C;"); }
+        private void ANT1B_click(object sender, MouseEventArgs e)   { SendCommand("AN01;"); }
+        private void ANT2B_click(object sender, MouseEventArgs e)   { SendCommand("AN02;"); }
+        private void ANT3RXB_click(object sender, MouseEventArgs e) { SendCommand("AN03;"); }
+        private void IPOB_click(object sender, MouseEventArgs e)    { SendCommand("PA00;"); }
+        private void AMP1B_click(object sender, MouseEventArgs e)   { SendCommand("PA01;"); }
+        private void AMP2B_click(object sender, MouseEventArgs e)   { SendCommand("PA02;"); }
+        private void RX1B_click(object sender, MouseEventArgs e)    { SendCommand("FR01;"); }
+        private void RX2B_click(object sender, MouseEventArgs e)    { SendCommand("FR10;"); }
+        private void RX12B_click(object sender, MouseEventArgs e)   { SendCommand("FR00;"); }
+        private void RX12B_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right) SendCommand("FR11;");
+        }
+        private void RX12off_click(object sender, MouseEventArgs e) { SendCommand("FR11;"); }
+        private void SSB1_click(object sender, EventArgs e) { SendCommand("SS0560000;"); }
+        private void SSB2_click(object sender, EventArgs e) { SendCommand("SS0570000;"); }
+        private void SSB3_click(object sender, EventArgs e) { SendCommand("SS0580000;"); }
+        private void SSB4_click(object sender, EventArgs e) { SendCommand("SS0590000;"); }
+        private void SSB5_click(object sender, EventArgs e) { SendCommand("SS0540000;"); }
+        private void SSB6_click(object sender, EventArgs e) { SendCommand("SS0550000;"); }
+        private void IntTune_Click(object sender, EventArgs e)  { SendCommand("AC001;"); SendCommand("AC002;"); }
+        private void ItuneOn_Click(object sender, EventArgs e)  { SendCommand("AC001;"); }
+        private void ItuneOff_Click(object sender, EventArgs e) { SendCommand("AC000;"); }
+        private void SWAP_Click(object sender, EventArgs e)     { SendCommand(CMD_SWAP); }
+        private void Button1_Click(object sender, EventArgs e)  { UpdateTextBox(TEMP_box, " "); }
+
+        #endregion
+
+        // =================================================================
+        #region External Tuner Button Paint
+
+        private void TuneButton_MouseEnter(object sender, EventArgs e) { ExtTuneButton.BackColor = Color.Blue; }
+        private void TuneButton_MouseLeave(object sender, EventArgs e) { ExtTuneButton.BackColor = Color.DarkGreen; }
+
+        private void TuneButton_Paint(object sender, PaintEventArgs e)
+        {
+            var btn = sender as Button;
+            if (btn == null) return;
+            const int thickness = 3;
+            using var pen = new Pen(Color.White, thickness);
+            pen.Alignment = System.Drawing.Drawing2D.PenAlignment.Inset;
+            e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, btn.Width - thickness, btn.Height - thickness));
+        }
+
+        #endregion
+
+        // =================================================================
+        #region Form Events
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            cts.Cancel();
-            if (Serial_Port?.IsOpen == true)
-                Serial_Port.Close();
+            Properties.Settings.Default.FormLocation = this.WindowState == FormWindowState.Normal
+                ? this.Location
+                : this.RestoreBounds.Location;
+            Properties.Settings.Default.IsLocationSaved = true;
+            Properties.Settings.Default.Save();
+
+            cts?.Cancel();
+            if (serialPort?.IsOpen == true) serialPort.Close();
         }
+
+        #endregion
+
+        // --- Empty stubs kept for designer compatibility ---
+        private void TextBox1_TextChanged(object sender, EventArgs e) { }
+        private void TextBox2_TextChanged(object sender, EventArgs e) { }
+        private void textBox1_TextChanged_1(object sender, EventArgs e) { }
+        private void RX_box_TextChanged(object sender, EventArgs e) { }
+        private void FixB_Click(object sender, EventArgs e) { }
+        private void rfGainTrackBar_Scroll(object sender, EventArgs e) { }
     }
 }

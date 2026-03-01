@@ -53,8 +53,8 @@ namespace DEVEL101
             FixB = new System.Windows.Forms.Button();
             rfGainTrackBar = new System.Windows.Forms.TrackBar();
             volumeGainTrackBar = new System.Windows.Forms.TrackBar();
-            FreqM_box = new System.Windows.Forms.TextBox();
-            FreqS_box = new System.Windows.Forms.TextBox();
+            FreqM_box = new System.Windows.Forms.Label();
+            FreqS_box = new System.Windows.Forms.Label();
             textBox1 = new System.Windows.Forms.TextBox();
             textBox2 = new System.Windows.Forms.TextBox();
             BUSY_box = new System.Windows.Forms.TextBox();
@@ -457,33 +457,27 @@ namespace DEVEL101
             // 
             // FreqM_box
             // 
-            FreqM_box.BackColor = Color.DarkGreen;
-            FreqM_box.Font = new Font("Consolas", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            FreqM_box.ForeColor = Color.Yellow;
+            FreqM_box.BackColor = Color.Black;
+            FreqM_box.Font = new Font("Courier New", 20F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            FreqM_box.ForeColor = Color.Gold;
             FreqM_box.Location = new Point(1, 1);
-            FreqM_box.Multiline = true;
             FreqM_box.Name = "FreqM_box";
             FreqM_box.Size = new Size(176, 50);
             FreqM_box.TabIndex = 44;
-            FreqM_box.TabStop = false;
             FreqM_box.Text = "MAIN";
-            FreqM_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            FreqM_box.WordWrap = false;
+            FreqM_box.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // FreqS_box
             // 
-            FreqS_box.BackColor = Color.DarkBlue;
-            FreqS_box.Font = new Font("Consolas", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            FreqS_box.ForeColor = Color.Yellow;
+            FreqS_box.BackColor = Color.Black;
+            FreqS_box.Font = new Font("Courier New", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            FreqS_box.ForeColor = Color.Gold;
             FreqS_box.Location = new Point(1, 52);
-            FreqS_box.Multiline = true;
             FreqS_box.Name = "FreqS_box";
             FreqS_box.Size = new Size(176, 50);
             FreqS_box.TabIndex = 45;
-            FreqS_box.TabStop = false;
             FreqS_box.Text = "SUB";
-            FreqS_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            FreqS_box.WordWrap = false;
+            FreqS_box.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // textBox1
             // 
@@ -955,6 +949,7 @@ namespace DEVEL101
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "MainForm";
+            Text = "The101Box v 18 - by Kees, ON9KVE";
             TransparencyKey = Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();
@@ -990,8 +985,8 @@ namespace DEVEL101
         private System.Windows.Forms.TrackBar rfGainTrackBar;
         private System.Windows.Forms.TrackBar volumeGainTrackBar;
         private System.Windows.Forms.TrackBar pwrControlTrackBar;
-        private System.Windows.Forms.TextBox FreqM_box;
-        private System.Windows.Forms.TextBox FreqS_box;
+        private System.Windows.Forms.Label FreqM_box;
+        private System.Windows.Forms.Label FreqS_box;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox3;

@@ -58,6 +58,9 @@ namespace DEVEL101
 
         // --- State ---
         private bool   rfSqlOn   = false;
+        private bool   iTuneOn   = false;
+        private int    flashCount = 0;
+        private System.Windows.Forms.Timer extTuneFlashTimer;
         private string Bar       = "";
         private string savedMode = "";
         private string savedPstr = "";
@@ -86,6 +89,10 @@ namespace DEVEL101
             sliderDebounceTimer = new System.Windows.Forms.Timer { Interval = 150 };
             sliderDebounceTimer.Tick += SliderDebounceTimer_Tick;
 
+            // Flash timer for blocked ExtTuneButton
+            extTuneFlashTimer = new System.Windows.Forms.Timer { Interval = 100 };
+            extTuneFlashTimer.Tick += ExtTuneFlashTimer_Tick;
+
             // ExtTuneButton styling
             ExtTuneButton.FlatStyle = FlatStyle.Flat;
             ExtTuneButton.FlatAppearance.BorderSize  = 0;
@@ -101,7 +108,7 @@ namespace DEVEL101
             LoadAvailablePorts();
 
             this.Text = "DEVEL101 v18 - by Kees, ON9KVE - Disconnected";
-            this.FormClosing += MainForm_FormClosing;
+            this.FormClosing  += MainForm_FormClosing;
         }
 
         // =================================================================
@@ -360,17 +367,24 @@ namespace DEVEL101
             {
                 string freqStr = resp.Substring(2, resp.Length - 3); // FTDX101D-specific offset
                 if (long.TryParse(freqStr, out long freqHz))
-                    UpdateTextBox(FreqM_box, $"MAIN:{freqHz / 100000.0,9:F3} MHz");
+                {
+                    long hz = freqHz * 10;
+                    UpdateTextBox(FreqM_box, $"{hz / 1000000,2}.{hz / 1000 % 1000:000}.{hz % 1000:000}");
+                }
             }
             else if (resp.StartsWith("FB") && resp.Length >= 4)
             {
                 string freqStr = resp.Substring(2, resp.Length - 3); // FTDX101D-specific offset
                 if (long.TryParse(freqStr, out long freqHz))
-                    UpdateTextBox(FreqS_box, $"SUB :{freqHz / 100000.0,9:F3} MHz");
+                {
+                    long hz = freqHz * 10;
+                    UpdateTextBox(FreqS_box, $"{hz / 1000000,2}.{hz / 1000 % 1000:000}.{hz % 1000:000}");
+                }
             }
             else if (resp.StartsWith("AC") && resp.Length >= 5)
             {
                 bool on = resp[4] == '1';
+                iTuneOn = on;
                 SetButtonActive(ItuneOn,  on);
                 SetButtonActive(ItuneOff, !on);
             }
@@ -387,7 +401,7 @@ namespace DEVEL101
             btn.ForeColor = Color.Yellow;
         }
 
-        private void UpdateTextBox(TextBox tb, string text, Color? foreColor = null)
+        private void UpdateTextBox(Control tb, string text, Color? foreColor = null)
         {
             tb.Text = text;
             if (foreColor.HasValue) tb.ForeColor = foreColor.Value;
@@ -518,6 +532,13 @@ namespace DEVEL101
 
         private void TuneButton_MouseDown(object sender, MouseEventArgs e)
         {
+            if (iTuneOn)
+            {
+                ExtTuneButton.Text = "Blocked";
+                flashCount = 0;
+                extTuneFlashTimer.Start();
+                return;
+            }
             savedMode = SendReceive(CMD_MODE_R);
             string resp = SendReceive(CMD_PWR_R);
             savedPstr = resp.Length >= 2 ? resp[2..] : "100";
@@ -528,6 +549,7 @@ namespace DEVEL101
 
         private void TuneButton_MouseUp(object sender, MouseEventArgs e)
         {
+            if (iTuneOn) return;
             SendCommand("MX0;");
             if (!string.IsNullOrEmpty(savedMode)) SendCommand(savedMode + ";");
             SendCommand("PC" + savedPstr + ";");
@@ -576,10 +598,33 @@ namespace DEVEL101
         private void TuneButton_MouseEnter(object sender, EventArgs e) { ExtTuneButton.BackColor = Color.Blue; }
         private void TuneButton_MouseLeave(object sender, EventArgs e) { ExtTuneButton.BackColor = Color.DarkGreen; }
 
+        private void ExtTuneFlashTimer_Tick(object sender, EventArgs e)
+        {
+            flashCount++;
+            ExtTuneButton.BackColor = (flashCount % 2 == 0) ? Color.DarkGreen : Color.DarkRed;
+            if (flashCount >= 6)
+            {
+                extTuneFlashTimer.Stop();
+                flashCount = 0;
+                ExtTuneButton.BackColor = Color.DarkGreen;
+                ExtTuneButton.Text = "Ext Tuner";
+            }
+        }
+
         private void TuneButton_Paint(object sender, PaintEventArgs e)
         {
             var btn = sender as Button;
             if (btn == null) return;
+
+            // Fill background ourselves so BackColor is always respected (even when disabled)
+            using var bg = new SolidBrush(btn.BackColor);
+            e.Graphics.FillRectangle(bg, btn.ClientRectangle);
+
+            // Draw text in yellow regardless of enabled state
+            TextRenderer.DrawText(e.Graphics, btn.Text, btn.Font, btn.ClientRectangle,
+                Color.Yellow, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+
+            // White border
             const int thickness = 3;
             using var pen = new Pen(Color.White, thickness);
             pen.Alignment = System.Drawing.Drawing2D.PenAlignment.Inset;

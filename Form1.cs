@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v21 RC2 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v21 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP       = "RM9;";

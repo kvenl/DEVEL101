@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 20  (06 mrt 26)
+// Version : 21  (06 mrt 26)
 // Name    : DEVEL101 Yaesu FTDX101D 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v20 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v21 RC1 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP       = "RM9;";
@@ -304,41 +304,56 @@ namespace DEVEL101
                 SetButtonActive(RFTOGGLE, sq);
                 RFTOGGLE.Text = sq ? "SQL" : "RF / SQL";
             }
-            else if (resp.StartsWith("SS06") && resp.Length >= 5)
+            else if ((resp.StartsWith("SS06") || resp.StartsWith("SS16")) && resp.Length >= 5)
             {
-                SetButtonActive(CursorB, resp[4] == '8');
-                SetButtonActive(CenterB, resp[4] == '5');
-                SetButtonActive(FixB,    resp[4] != '8' && resp[4] != '5');
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    SetButtonActive(CursorB, resp[4] == '8');
+                    SetButtonActive(CenterB, resp[4] == '5');
+                    SetButtonActive(FixB,    resp[4] != '8' && resp[4] != '5');
+                }
             }
-            else if (resp.StartsWith("SS05") && resp.Length >= 5)
+            else if ((resp.StartsWith("SS05") || resp.StartsWith("SS15")) && resp.Length >= 5)
             {
-                SetButtonActive(SSB4, resp[4] == '9');
-                SetButtonActive(SSB5, resp[4] == '4');
-                SetButtonActive(SSB6, resp[4] == '5');
-                SetButtonActive(SSB1, resp[4] == '6');
-                SetButtonActive(SSB2, resp[4] == '7');
-                SetButtonActive(SSB3, resp[4] == '8');
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    SetButtonActive(SSB4, resp[4] == '9');
+                    SetButtonActive(SSB5, resp[4] == '4');
+                    SetButtonActive(SSB6, resp[4] == '5');
+                    SetButtonActive(SSB1, resp[4] == '6');
+                    SetButtonActive(SSB2, resp[4] == '7');
+                    SetButtonActive(SSB3, resp[4] == '8');
+                }
             }
-            else if (resp.StartsWith("MD0") && resp.Length >= 4)
+            else if (resp.StartsWith("MD") && resp.Length >= 4 && (resp[2] == '0' || resp[2] == '1'))
             {
-                SetButtonActive(LSBB, resp[3] == '1');
-                SetButtonActive(USBB, resp[3] == '2');
-                SetButtonActive(CWB,  resp[3] == '3');
-                SetButtonActive(FMB,  resp[3] == '4');
-                SetButtonActive(AMB,  resp[3] == '5');
-                SetButtonActive(DIGB, resp[3] == 'C');
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    SetButtonActive(LSBB, resp[3] == '1');
+                    SetButtonActive(USBB, resp[3] == '2');
+                    SetButtonActive(CWB,  resp[3] == '3');
+                    SetButtonActive(FMB,  resp[3] == '4');
+                    SetButtonActive(AMB,  resp[3] == '5');
+                    SetButtonActive(DIGB, resp[3] == 'C');
+                }
             }
-            else if (resp.StartsWith("AN0") && resp.Length >= 4)
+            else if (resp.StartsWith("AN") && resp.Length >= 4 && (resp[2] == '0' || resp[2] == '1'))
             {
-                SetButtonActive(ANT1B,   resp[3] == '1');
-                SetButtonActive(ANT2B,   resp[3] == '2');
-                SetButtonActive(ANT3RXB, resp[3] == '3');
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    SetButtonActive(ANT1B,   resp[3] == '1');
+                    SetButtonActive(ANT2B,   resp[3] == '2');
+                    SetButtonActive(ANT3RXB, resp[3] == '3');
+                }
             }
-            else if (resp.StartsWith("PA0") && resp.Length >= 4)
+            else if (resp.StartsWith("PA") && resp.Length >= 4 && (resp[2] == '0' || resp[2] == '1'))
             {
-                SetButtonActive(IPOB,  resp[3] == '0');
-                SetButtonActive(AMP1B, resp[3] == '1');
-                SetButtonActive(AMP2B, resp[3] == '2');
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    SetButtonActive(IPOB,  resp[3] == '0');
+                    SetButtonActive(AMP1B, resp[3] == '1');
+                    SetButtonActive(AMP2B, resp[3] == '2');
+                }
             }
             else if (resp.StartsWith("FR") && resp.Length >= 4)
             {
@@ -576,21 +591,21 @@ namespace DEVEL101
             SendCommand("PC" + savedPstr + ";");
         }
 
-        private void Center_Click(object sender, MouseEventArgs e)  { SendCommand(CMD_CENTER); }
-        private void Cursor_Click(object sender, MouseEventArgs e)  { SendCommand(CMD_CENTER); SendCommand(CMD_CURSOR); }
-        private void Fix_Click(object sender, MouseEventArgs e)     { SendCommand(CMD_CENTER); SendCommand(CMD_FIX); }
-        private void USB_click(object sender, MouseEventArgs e)     { SendCommand("MD02;"); }
-        private void LSB_click(object sender, MouseEventArgs e)     { SendCommand("MD01;"); }
-        private void CW_click(object sender, MouseEventArgs e)      { SendCommand("MD03;"); }
-        private void FM_click(object sender, MouseEventArgs e)      { SendCommand("MD04;"); }
-        private void AM_click(object sender, MouseEventArgs e)      { SendCommand("MD05;"); }
-        private void DIG_click(object sender, MouseEventArgs e)     { SendCommand("MD0C;"); }
-        private void ANT1B_click(object sender, MouseEventArgs e)   { SendCommand("AN01;"); }
-        private void ANT2B_click(object sender, MouseEventArgs e)   { SendCommand("AN02;"); }
-        private void ANT3RXB_click(object sender, MouseEventArgs e) { SendCommand("AN03;"); }
-        private void IPOB_click(object sender, MouseEventArgs e)    { SendCommand("PA00;"); }
-        private void AMP1B_click(object sender, MouseEventArgs e)   { SendCommand("PA01;"); }
-        private void AMP2B_click(object sender, MouseEventArgs e)   { SendCommand("PA02;"); }
+        private void Center_Click(object sender, MouseEventArgs e)  { int v = mainFocused ? 0 : 1; SendCommand($"SS{v}650000;"); }
+        private void Cursor_Click(object sender, MouseEventArgs e)  { int v = mainFocused ? 0 : 1; SendCommand($"SS{v}650000;"); SendCommand($"SS{v}680000;"); }
+        private void Fix_Click(object sender, MouseEventArgs e)     { int v = mainFocused ? 0 : 1; SendCommand($"SS{v}650000;"); SendCommand($"SS{v}6B0000;"); }
+        private void USB_click(object sender, MouseEventArgs e)     { SendCommand($"MD{(mainFocused ? 0 : 1)}2;"); }
+        private void LSB_click(object sender, MouseEventArgs e)     { SendCommand($"MD{(mainFocused ? 0 : 1)}1;"); }
+        private void CW_click(object sender, MouseEventArgs e)      { SendCommand($"MD{(mainFocused ? 0 : 1)}3;"); }
+        private void FM_click(object sender, MouseEventArgs e)      { SendCommand($"MD{(mainFocused ? 0 : 1)}4;"); }
+        private void AM_click(object sender, MouseEventArgs e)      { SendCommand($"MD{(mainFocused ? 0 : 1)}5;"); }
+        private void DIG_click(object sender, MouseEventArgs e)     { SendCommand($"MD{(mainFocused ? 0 : 1)}C;"); }
+        private void ANT1B_click(object sender, MouseEventArgs e)   { SendCommand($"AN{(mainFocused ? 0 : 1)}1;"); }
+        private void ANT2B_click(object sender, MouseEventArgs e)   { SendCommand($"AN{(mainFocused ? 0 : 1)}2;"); }
+        private void ANT3RXB_click(object sender, MouseEventArgs e) { SendCommand($"AN{(mainFocused ? 0 : 1)}3;"); }
+        private void IPOB_click(object sender, MouseEventArgs e)    { SendCommand($"PA{(mainFocused ? 0 : 1)}0;"); }
+        private void AMP1B_click(object sender, MouseEventArgs e)   { SendCommand($"PA{(mainFocused ? 0 : 1)}1;"); }
+        private void AMP2B_click(object sender, MouseEventArgs e)   { SendCommand($"PA{(mainFocused ? 0 : 1)}2;"); }
         private void BANDB_MouseDown(object sender, MouseEventArgs e)
         {
             int x = mainFocused ? 0 : 2;
@@ -676,12 +691,12 @@ namespace DEVEL101
                 isBothMuted = false;
             }
         }
-        private void SSB1_click(object sender, EventArgs e) { SendCommand("SS0560000;"); }
-        private void SSB2_click(object sender, EventArgs e) { SendCommand("SS0570000;"); }
-        private void SSB3_click(object sender, EventArgs e) { SendCommand("SS0580000;"); }
-        private void SSB4_click(object sender, EventArgs e) { SendCommand("SS0590000;"); }
-        private void SSB5_click(object sender, EventArgs e) { SendCommand("SS0540000;"); }
-        private void SSB6_click(object sender, EventArgs e) { SendCommand("SS0550000;"); }
+        private void SSB1_click(object sender, EventArgs e) { SendCommand($"SS{(mainFocused ? 0 : 1)}560000;"); }
+        private void SSB2_click(object sender, EventArgs e) { SendCommand($"SS{(mainFocused ? 0 : 1)}570000;"); }
+        private void SSB3_click(object sender, EventArgs e) { SendCommand($"SS{(mainFocused ? 0 : 1)}580000;"); }
+        private void SSB4_click(object sender, EventArgs e) { SendCommand($"SS{(mainFocused ? 0 : 1)}590000;"); }
+        private void SSB5_click(object sender, EventArgs e) { SendCommand($"SS{(mainFocused ? 0 : 1)}540000;"); }
+        private void SSB6_click(object sender, EventArgs e) { SendCommand($"SS{(mainFocused ? 0 : 1)}550000;"); }
         private void IntTune_Click(object sender, EventArgs e)  { SendCommand("AC001;"); SendCommand("AC002;"); }
         private void ItuneOn_Click(object sender, EventArgs e)  { SendCommand("AC001;"); }
         private void ItuneOff_Click(object sender, EventArgs e) { SendCommand("AC000;"); }

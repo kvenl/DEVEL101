@@ -18,18 +18,23 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v21 RC1 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v21 RC2 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP       = "RM9;";
         private const string CMD_RFSQL_R    = "EX030107;";
         private const string CMD_RFSQL_ON   = "EX0301071;";
         private const string CMD_RFSQL_OFF  = "EX0301070;";
-        private const string CMD_DSPMOD_R   = "SS06;";
-        private const string CMD_DSPSPAN_R  = "SS05;";
-        private const string CMD_MODE_R     = "MD0;";
-        private const string CMD_ANT_R      = "AN0;";
-        private const string CMD_IPO_R      = "PA0;";
+        private const string CMD_DSPMOD_R       = "SS06;";
+        private const string CMD_DSPSPAN_R      = "SS05;";
+        private const string CMD_MODE_R         = "MD0;";
+        private const string CMD_ANT_R          = "AN0;";
+        private const string CMD_IPO_R          = "PA0;";
+        private const string CMD_DSPMOD_SUB_R   = "SS16;";
+        private const string CMD_DSPSPAN_SUB_R  = "SS15;";
+        private const string CMD_MODE_SUB_R     = "MD1;";
+        private const string CMD_ANT_SUB_R      = "AN1;";
+        private const string CMD_IPO_SUB_R      = "PA1;";
         private const string CMD_RX_R       = "FR;";
         private const string CMD_RFGAIN_R   = "RG0;";
         private const string CMD_VOL_R      = "AG0;";
@@ -114,6 +119,9 @@ namespace DEVEL101
 
             // Wire all events — not in designer
             InitializeTrackBarEvents();
+
+            // Build initial poll command list (MAIN focused by default)
+            RebuildPollCommands();
 
             // Populate COM port list
             LoadAvailablePorts();
@@ -236,19 +244,30 @@ namespace DEVEL101
         // =================================================================
         #region Poll Loop
 
-        private static readonly string[] PollCmds =
+        private string[] pollCmds;
+
+        private void RebuildPollCommands()
         {
-            CMD_TEMP,     CMD_RFSQL_R,  CMD_DSPMOD_R, CMD_DSPSPAN_R,
-            CMD_MODE_R,   CMD_ANT_R,    CMD_IPO_R,    CMD_RX_R,
-            CMD_RFGAIN_R, CMD_VOL_R,    CMD_PWR_R,
-            CMD_SUBRF_R,  CMD_SUBVOL_R,
-            CMD_FREQA_R,  CMD_FREQB_R,  CMD_TUNER_R,  CMD_VS_R
-        };
+            pollCmds = new[]
+            {
+                CMD_TEMP,     CMD_RFSQL_R,
+                mainFocused ? CMD_DSPMOD_R  : CMD_DSPMOD_SUB_R,
+                mainFocused ? CMD_DSPSPAN_R : CMD_DSPSPAN_SUB_R,
+                mainFocused ? CMD_MODE_R    : CMD_MODE_SUB_R,
+                mainFocused ? CMD_ANT_R     : CMD_ANT_SUB_R,
+                mainFocused ? CMD_IPO_R     : CMD_IPO_SUB_R,
+                CMD_RX_R,
+                CMD_RFGAIN_R, CMD_VOL_R,    CMD_PWR_R,
+                CMD_SUBRF_R,  CMD_SUBVOL_R,
+                CMD_FREQA_R,  CMD_FREQB_R,  CMD_TUNER_R, CMD_VS_R
+            };
+            pollIndex = 0;
+        }
 
         /// <summary>One-shot initial read of all parameters on connect (runs on background thread).</summary>
         private void ReadRadioStatus()
         {
-            foreach (string cmd in PollCmds)
+            foreach (string cmd in pollCmds)
             {
                 string resp = SendReceive(cmd);
                 Invoke((Action)(() => ProcessResponse(resp)));
@@ -270,8 +289,8 @@ namespace DEVEL101
                 }
             }
 
-            string cmd  = PollCmds[pollIndex];
-            pollIndex   = (pollIndex + 1) % PollCmds.Length;
+            string cmd  = pollCmds[pollIndex];
+            pollIndex   = (pollIndex + 1) % pollCmds.Length;
 
             string resp = await Task.Run(() => SendReceive(cmd));
             ProcessResponse(resp);
@@ -478,6 +497,11 @@ namespace DEVEL101
             // COM port controls
             ConnectToggleButton.Click += ConnectToggleButton_Click;
             comPortComboBox.DrawItem  += ComboBox_DrawItem;
+
+            // Step size selector
+            StepComboBox.Items.AddRange(new object[] { "100 Hz", "500 Hz", "1 kHz", "5 kHz", "9 kHz", "20 kHz", "50 kHz" });
+            StepComboBox.SelectedIndex = 0;
+            StepComboBox.DrawItem += ComboBox_DrawItem;
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -612,6 +636,28 @@ namespace DEVEL101
             if (e.Button == MouseButtons.Left)  SendCommand($"BU{x};");
             if (e.Button == MouseButtons.Right) SendCommand($"BD{x};");
         }
+        private void PLUSB_Click(object sender, EventArgs e)
+        {
+            long newFreq = (mainFocused ? mainFreqHz : subFreqHz) + GetStepHz();
+            SendCommand(mainFocused ? $"FA{newFreq:D9};" : $"FB{newFreq:D9};");
+        }
+        private void MINB_Click(object sender, EventArgs e)
+        {
+            long newFreq = (mainFocused ? mainFreqHz : subFreqHz) - GetStepHz();
+            if (newFreq < 0) newFreq = 0;
+            SendCommand(mainFocused ? $"FA{newFreq:D9};" : $"FB{newFreq:D9};");
+        }
+        private long GetStepHz() => StepComboBox.SelectedItem?.ToString() switch
+        {
+            "100 Hz" => 100,
+            "500 Hz" => 500,
+            "1 kHz"  => 1_000,
+            "5 kHz"  => 5_000,
+            "9 kHz"  => 9_000,
+            "20 kHz" => 20_000,
+            "50 kHz" => 50_000,
+            _        => 100
+        };
         private static string GetBandName(long hz) => hz switch
         {
             >= 1_800_000 and < 2_000_000   => "160m",
@@ -639,6 +685,7 @@ namespace DEVEL101
             FreqM_box.Invalidate();
             FreqS_box.Invalidate();
             BANDB.Text = GetBandName(focusMain ? mainFreqHz : subFreqHz);
+            RebuildPollCommands();
         }
         private void RX1B_click(object sender, MouseEventArgs e)
         {

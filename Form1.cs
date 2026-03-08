@@ -271,7 +271,7 @@ namespace DEVEL101
             {
                 string resp = SendReceive(cmd);
                 Invoke((Action)(() => ProcessResponse(resp)));
-                Thread.Sleep(60);
+                Thread.Sleep(6);
             }
         }
 
@@ -500,7 +500,7 @@ namespace DEVEL101
 
             // Step size selector
             StepComboBox.Items.AddRange(new object[] { "100 Hz", "500 Hz", "1 kHz", "5 kHz", "9 kHz", "20 kHz", "50 kHz" });
-            StepComboBox.SelectedIndex = 0;
+            StepComboBox.SelectedIndex = 1;
             StepComboBox.DrawItem += ComboBox_DrawItem;
         }
 
@@ -639,13 +639,29 @@ namespace DEVEL101
         private void PLUSB_Click(object sender, EventArgs e)
         {
             long newFreq = (mainFocused ? mainFreqHz : subFreqHz) + GetStepHz();
-            SendCommand(mainFocused ? $"FA{newFreq:D9};" : $"FB{newFreq:D9};");
+            ApplyFrequencyStep(newFreq);
         }
         private void MINB_Click(object sender, EventArgs e)
         {
             long newFreq = (mainFocused ? mainFreqHz : subFreqHz) - GetStepHz();
             if (newFreq < 0) newFreq = 0;
-            SendCommand(mainFocused ? $"FA{newFreq:D9};" : $"FB{newFreq:D9};");
+            ApplyFrequencyStep(newFreq);
+        }
+        private void ApplyFrequencyStep(long newFreq)
+        {
+            if (mainFocused)
+            {
+                mainFreqHz = newFreq;
+                UpdateTextBox(FreqM_box, $"{mainFreqHz / 1000000,2}.{mainFreqHz / 1000 % 1000:000}.{mainFreqHz % 1000:000}");
+                SendCommand($"FA{newFreq:D9};");
+            }
+            else
+            {
+                subFreqHz = newFreq;
+                UpdateTextBox(FreqS_box, $"{subFreqHz / 1000000,2}.{subFreqHz / 1000 % 1000:000}.{subFreqHz % 1000:000}");
+                SendCommand($"FB{newFreq:D9};");
+            }
+            BANDB.Text = GetBandName(newFreq);
         }
         private long GetStepHz() => StepComboBox.SelectedItem?.ToString() switch
         {

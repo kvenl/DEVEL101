@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 21  (06 mrt 26)
+// Version : 22  (08 mrt 26)
 // Name    : DEVEL101 Yaesu FTDX101D 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v21 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v22 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP       = "RM9;";
@@ -75,6 +75,7 @@ namespace DEVEL101
         private bool   mainFocused  = true;
         private long   mainFreqHz   = 0;
         private long   subFreqHz    = 0;
+        private bool   suppressStepSave = false;
         private int    flashCount = 0;
         private System.Windows.Forms.Timer extTuneFlashTimer;
         private string Bar       = "";
@@ -99,10 +100,10 @@ namespace DEVEL101
             }
 
             // Poll timer
-            pollTimer = new System.Windows.Forms.Timer { Interval = 50 };
+            pollTimer = new System.Windows.Forms.Timer { Interval = 6 };
 
             // Slider debounce timer
-            sliderDebounceTimer = new System.Windows.Forms.Timer { Interval = 150 };
+            sliderDebounceTimer = new System.Windows.Forms.Timer { Interval = 100 };
             sliderDebounceTimer.Tick += SliderDebounceTimer_Tick;
 
             // Flash timer for blocked ExtTuneButton
@@ -500,8 +501,10 @@ namespace DEVEL101
 
             // Step size selector
             StepComboBox.Items.AddRange(new object[] { "100 Hz", "500 Hz", "1 kHz", "5 kHz", "9 kHz", "20 kHz", "50 kHz" });
-            StepComboBox.SelectedIndex = 1;
+            int stepIdx = StepComboBox.Items.IndexOf(Properties.Settings.Default.StepMain);
+            StepComboBox.SelectedIndex = stepIdx >= 0 ? stepIdx : 1;
             StepComboBox.DrawItem += ComboBox_DrawItem;
+            StepComboBox.SelectedIndexChanged += StepComboBox_SelectedIndexChanged;
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -513,6 +516,15 @@ namespace DEVEL101
             e.Graphics.FillRectangle(bg, e.Bounds);
             using var fg = new SolidBrush(cb.ForeColor);
             e.Graphics.DrawString(cb.Items[e.Index].ToString(), e.Font, fg, e.Bounds);
+        }
+
+        private void StepComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (suppressStepSave) return;
+            string step = StepComboBox.SelectedItem?.ToString() ?? "500 Hz";
+            if (mainFocused) Properties.Settings.Default.StepMain = step;
+            else             Properties.Settings.Default.StepSub  = step;
+            Properties.Settings.Default.Save();
         }
 
         #endregion
@@ -632,7 +644,7 @@ namespace DEVEL101
         private void AMP2B_click(object sender, MouseEventArgs e)   { SendCommand($"PA{(mainFocused ? 0 : 1)}2;"); }
         private void BANDB_MouseDown(object sender, MouseEventArgs e)
         {
-            int x = mainFocused ? 0 : 2;
+            int x = mainFocused ? 0 : 1;
             if (e.Button == MouseButtons.Left)  SendCommand($"BU{x};");
             if (e.Button == MouseButtons.Right) SendCommand($"BD{x};");
         }
@@ -693,6 +705,11 @@ namespace DEVEL101
         private void FreqS_box_Click(object sender, EventArgs e) { SendCommand("VS1;"); }
         private void SetReceiverFocus(bool focusMain)
         {
+            // Save step for the VFO we're leaving
+            string currentStep = StepComboBox.SelectedItem?.ToString() ?? "500 Hz";
+            if (mainFocused) Properties.Settings.Default.StepMain = currentStep;
+            else             Properties.Settings.Default.StepSub  = currentStep;
+
             mainFocused = focusMain;
             FreqM_box.BackColor = focusMain ? Color.LightGray : Color.Black;
             FreqM_box.ForeColor = focusMain ? Color.Black     : Color.Gold;
@@ -702,6 +719,13 @@ namespace DEVEL101
             FreqS_box.Invalidate();
             BANDB.Text = GetBandName(focusMain ? mainFreqHz : subFreqHz);
             RebuildPollCommands();
+
+            // Load step for the newly focused VFO
+            suppressStepSave = true;
+            string newStep = focusMain ? Properties.Settings.Default.StepMain : Properties.Settings.Default.StepSub;
+            int idx = StepComboBox.Items.IndexOf(newStep);
+            StepComboBox.SelectedIndex = idx >= 0 ? idx : 1;
+            suppressStepSave = false;
         }
         private void RX1B_click(object sender, MouseEventArgs e)
         {

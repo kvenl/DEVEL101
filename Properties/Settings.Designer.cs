@@ -58,5 +58,29 @@ namespace DEVEL101.Properties {
                 this["IsLocationSaved"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500 Hz")]
+        public string StepMain {
+            get {
+                return ((string)(this["StepMain"]));
+            }
+            set {
+                this["StepMain"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500 Hz")]
+        public string StepSub {
+            get {
+                return ((string)(this["StepSub"]));
+            }
+            set {
+                this["StepSub"] = value;
+            }
+        }
     }
 }

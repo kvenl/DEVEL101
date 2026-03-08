@@ -11,5 +11,11 @@
     <Setting Name="IsLocationSaved" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="StepMain" Type="System.String" Scope="User">
+      <Value Profile="(Default)">500 Hz</Value>
+    </Setting>
+    <Setting Name="StepSub" Type="System.String" Scope="User">
+      <Value Profile="(Default)">500 Hz</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

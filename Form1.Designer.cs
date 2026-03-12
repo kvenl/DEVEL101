@@ -117,11 +117,11 @@ namespace DEVEL101
             ExtTuneButton.FlatAppearance.MouseOverBackColor = Color.Blue;
             ExtTuneButton.Font = new Font("Verdana", 8.25F, FontStyle.Bold);
             ExtTuneButton.ForeColor = Color.Yellow;
-            ExtTuneButton.Location = new Point(880, 83);
+            ExtTuneButton.Location = new Point(881, 83);
             ExtTuneButton.Name = "ExtTuneButton";
-            ExtTuneButton.Size = new Size(88, 40);
+            ExtTuneButton.Size = new Size(86, 40);
             ExtTuneButton.TabIndex = 8;
-            ExtTuneButton.Text = "Ext Tuner";
+            ExtTuneButton.Text = "External\r\nTuner";
             ExtTuneButton.UseVisualStyleBackColor = false;
             // 
             // CursorB
@@ -216,7 +216,7 @@ namespace DEVEL101
             RFTOGGLE.Name = "RFTOGGLE";
             RFTOGGLE.Size = new Size(88, 40);
             RFTOGGLE.TabIndex = 20;
-            RFTOGGLE.Text = "RF / SQL";
+            RFTOGGLE.Text = "RF/SQL\r\nMAIN";
             RFTOGGLE.UseVisualStyleBackColor = false;
             RFTOGGLE.MouseClick += RFB_click;
             // 
@@ -452,7 +452,7 @@ namespace DEVEL101
             FreqM_box.ForeColor = Color.Gold;
             FreqM_box.Location = new Point(1, 1);
             FreqM_box.Name = "FreqM_box";
-            FreqM_box.Size = new Size(176, 50);
+            FreqM_box.Size = new Size(176, 45);
             FreqM_box.TabIndex = 44;
             FreqM_box.Text = "MAIN";
             FreqM_box.UseVisualStyleBackColor = false;
@@ -466,9 +466,9 @@ namespace DEVEL101
             FreqS_box.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             FreqS_box.Font = new Font("Courier New", 20F, FontStyle.Bold);
             FreqS_box.ForeColor = Color.Gold;
-            FreqS_box.Location = new Point(1, 52);
+            FreqS_box.Location = new Point(1, 47);
             FreqS_box.Name = "FreqS_box";
-            FreqS_box.Size = new Size(176, 50);
+            FreqS_box.Size = new Size(176, 47);
             FreqS_box.TabIndex = 45;
             FreqS_box.Text = "SUB";
             FreqS_box.UseVisualStyleBackColor = false;
@@ -766,9 +766,9 @@ namespace DEVEL101
             SWAP.FlatAppearance.MouseOverBackColor = Color.Blue;
             SWAP.Font = new Font("Verdana", 7F, FontStyle.Bold);
             SWAP.ForeColor = Color.Yellow;
-            SWAP.Location = new Point(184, 83);
+            SWAP.Location = new Point(182, 73);
             SWAP.Name = "SWAP";
-            SWAP.Size = new Size(88, 22);
+            SWAP.Size = new Size(88, 29);
             SWAP.TabIndex = 63;
             SWAP.Text = "< === >";
             SWAP.UseVisualStyleBackColor = false;
@@ -842,7 +842,7 @@ namespace DEVEL101
             comPortComboBox.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
             comPortComboBox.ForeColor = Color.Yellow;
             comPortComboBox.ItemHeight = 16;
-            comPortComboBox.Location = new Point(93, 103);
+            comPortComboBox.Location = new Point(93, 102);
             comPortComboBox.Name = "comPortComboBox";
             comPortComboBox.Size = new Size(85, 22);
             comPortComboBox.TabIndex = 65;
@@ -854,7 +854,7 @@ namespace DEVEL101
             ConnectToggleButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             ConnectToggleButton.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ConnectToggleButton.ForeColor = Color.Yellow;
-            ConnectToggleButton.Location = new Point(2, 104);
+            ConnectToggleButton.Location = new Point(2, 102);
             ConnectToggleButton.Name = "ConnectToggleButton";
             ConnectToggleButton.Size = new Size(85, 21);
             ConnectToggleButton.TabIndex = 66;
@@ -869,9 +869,9 @@ namespace DEVEL101
             StepComboBox.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
             StepComboBox.ForeColor = Color.Yellow;
             StepComboBox.ItemHeight = 16;
-            StepComboBox.Location = new Point(187, 104);
+            StepComboBox.Location = new Point(183, 102);
             StepComboBox.Name = "StepComboBox";
-            StepComboBox.Size = new Size(85, 22);
+            StepComboBox.Size = new Size(86, 22);
             StepComboBox.TabIndex = 67;
             // 
             // BANDB
@@ -882,7 +882,7 @@ namespace DEVEL101
             BANDB.FlatAppearance.MouseOverBackColor = Color.Blue;
             BANDB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             BANDB.ForeColor = Color.Yellow;
-            BANDB.Location = new Point(184, 1);
+            BANDB.Location = new Point(182, 1);
             BANDB.Name = "BANDB";
             BANDB.Size = new Size(88, 40);
             BANDB.TabIndex = 68;
@@ -898,9 +898,9 @@ namespace DEVEL101
             MINB.FlatAppearance.MouseOverBackColor = Color.Blue;
             MINB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             MINB.ForeColor = Color.Yellow;
-            MINB.Location = new Point(184, 42);
+            MINB.Location = new Point(182, 42);
             MINB.Name = "MINB";
-            MINB.Size = new Size(44, 40);
+            MINB.Size = new Size(44, 30);
             MINB.TabIndex = 69;
             MINB.Text = "[-]";
             MINB.UseVisualStyleBackColor = false;
@@ -914,9 +914,9 @@ namespace DEVEL101
             PLUSB.FlatAppearance.MouseOverBackColor = Color.Blue;
             PLUSB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             PLUSB.ForeColor = Color.Yellow;
-            PLUSB.Location = new Point(228, 42);
+            PLUSB.Location = new Point(226, 42);
             PLUSB.Name = "PLUSB";
-            PLUSB.Size = new Size(44, 40);
+            PLUSB.Size = new Size(44, 30);
             PLUSB.TabIndex = 70;
             PLUSB.Text = "[+]";
             PLUSB.UseVisualStyleBackColor = false;

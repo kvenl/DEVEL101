@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 22  (08 mrt 26)
+// Version : 23  (12 mrt 26)
 // Name    : DEVEL101 Yaesu FTDX101D 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v22 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v23 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP       = "RM9;";
@@ -322,7 +322,7 @@ namespace DEVEL101
                 bool sq = resp[8] == '1';
                 rfSqlOn = sq;
                 SetButtonActive(RFTOGGLE, sq);
-                RFTOGGLE.Text = sq ? "SQL" : "RF / SQL";
+                RFTOGGLE.Text = sq ? "SQUELCH\r\nMAIN" : "RF/SQL\r\nMAIN";
             }
             else if ((resp.StartsWith("SS06") || resp.StartsWith("SS16")) && resp.Length >= 5)
             {
@@ -826,19 +826,22 @@ namespace DEVEL101
             var btn = sender as Button;
             if (btn == null) return;
 
-            // Fill background ourselves so BackColor is always respected (even when disabled)
+            // Fill background so BackColor is always respected (even when disabled)
             using var bg = new SolidBrush(btn.BackColor);
             e.Graphics.FillRectangle(bg, btn.ClientRectangle);
 
-            // Draw text in yellow regardless of enabled state
+            // Draw text in yellow, word-wrapped
             TextRenderer.DrawText(e.Graphics, btn.Text, btn.Font, btn.ClientRectangle,
-                Color.Yellow, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+                Color.Yellow,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak);
 
-            // White border
-            const int thickness = 3;
-            using var pen = new Pen(Color.White, thickness);
-            pen.Alignment = System.Drawing.Drawing2D.PenAlignment.Inset;
-            e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, btn.Width - thickness, btn.Height - thickness));
+            // Symmetric 3px white border — 4 filled rectangles, no gaps
+            const int t = 3;
+            using var border = new SolidBrush(Color.White);
+            e.Graphics.FillRectangle(border, 0, 0, btn.Width, t);                    // top
+            e.Graphics.FillRectangle(border, 0, btn.Height - t, btn.Width, t);       // bottom
+            e.Graphics.FillRectangle(border, 0, 0, t, btn.Height);                   // left
+            e.Graphics.FillRectangle(border, btn.Width - t, 0, t, btn.Height);       // right
         }
 
         #endregion

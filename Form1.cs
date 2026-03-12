@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 23  (12 mrt 26)
+// Version : 24a  (12 mrt 26)
 // Name    : DEVEL101 Yaesu FTDX101D 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v23 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v24a - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP       = "RM9;";
@@ -688,17 +688,17 @@ namespace DEVEL101
         };
         private static string GetBandName(long hz) => hz switch
         {
-            >= 1_800_000 and < 2_000_000   => "160m",
-            >= 3_500_000 and < 4_000_000   => "80m",
-            >= 5_250_000 and < 5_450_000   => "60m",
-            >= 7_000_000 and < 7_300_000   => "40m",
+            >= 1_810_000 and < 1_900_000   => "160m",
+            >= 3_500_000 and < 3_800_000   => "80m",
+            >= 5_350_000 and < 5_367_000   => "60m",
+            >= 7_000_000 and < 7_200_000   => "40m",
             >= 10_100_000 and < 10_150_000 => "30m",
             >= 14_000_000 and < 14_350_000 => "20m",
             >= 18_068_000 and < 18_168_000 => "17m",
             >= 21_000_000 and < 21_450_000 => "15m",
             >= 24_890_000 and < 24_990_000 => "12m",
             >= 28_000_000 and < 29_700_000 => "10m",
-            >= 50_000_000 and < 54_000_000 => "6m",
+            >= 50_000_000 and < 52_000_000 => "6m",
             _ => "GEN"
         };
         private void FreqM_box_Click(object sender, EventArgs e) { SendCommand("VS0;"); }

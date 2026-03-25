@@ -722,7 +722,7 @@ namespace DEVEL101
             else Properties.Settings.Default.StepSub = currentStep;
 
             mainFocused = focusMain;
-            FreqM_box.BackColor = focusMain ? Color.LightGray : Color.Black;
+            FreqM_box.BackColor = focusMain ? Color.Silver : Color.Black;
             FreqM_box.ForeColor = focusMain ? Color.Black : Color.Gold;
             FreqS_box.BackColor = focusMain ? Color.Black : Color.Blue;
             FreqS_box.ForeColor = focusMain ? Color.Gold : Color.White;

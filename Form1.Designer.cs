@@ -426,8 +426,9 @@ namespace DEVEL101
             // 
             // rfGainTrackBar
             // 
-            rfGainTrackBar.BackColor = Color.LightGray;
+            rfGainTrackBar.BackColor = Color.Silver;
             rfGainTrackBar.ChannelColor = Color.Gray;
+            rfGainTrackBar.ForeColor = Color.DarkBlue;
             rfGainTrackBar.Location = new Point(1, 121);
             rfGainTrackBar.Maximum = 255;
             rfGainTrackBar.Name = "rfGainTrackBar";
@@ -441,8 +442,9 @@ namespace DEVEL101
             // 
             // volumeGainTrackBar
             // 
-            volumeGainTrackBar.BackColor = Color.LightGray;
+            volumeGainTrackBar.BackColor = Color.Silver;
             volumeGainTrackBar.ChannelColor = Color.Gray;
+            volumeGainTrackBar.ForeColor = Color.DarkBlue;
             volumeGainTrackBar.Location = new Point(48, 121);
             volumeGainTrackBar.Maximum = 255;
             volumeGainTrackBar.Name = "volumeGainTrackBar";
@@ -492,7 +494,7 @@ namespace DEVEL101
             textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             textBox1.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             textBox1.ForeColor = Color.Gold;
-            textBox1.Location = new Point(1, 224);
+            textBox1.Location = new Point(1, 227);
             textBox1.Margin = new System.Windows.Forms.Padding(0);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
@@ -522,9 +524,10 @@ namespace DEVEL101
             // 
             // pwrControlTrackBar
             // 
-            pwrControlTrackBar.BackColor = Color.OrangeRed;
+            pwrControlTrackBar.BackColor = Color.Maroon;
             pwrControlTrackBar.ChannelColor = Color.Gray;
-            pwrControlTrackBar.Location = new Point(660, 12);
+            pwrControlTrackBar.ForeColor = Color.Red;
+            pwrControlTrackBar.Location = new Point(660, 15);
             pwrControlTrackBar.Maximum = 100;
             pwrControlTrackBar.Minimum = 5;
             pwrControlTrackBar.Name = "pwrControlTrackBar";
@@ -702,6 +705,7 @@ namespace DEVEL101
             // 
             SubrfGainTrackBar.BackColor = Color.DarkBlue;
             SubrfGainTrackBar.ChannelColor = Color.Gray;
+            SubrfGainTrackBar.ForeColor = Color.Silver;
             SubrfGainTrackBar.Location = new Point(98, 121);
             SubrfGainTrackBar.Maximum = 255;
             SubrfGainTrackBar.Name = "SubrfGainTrackBar";
@@ -717,6 +721,7 @@ namespace DEVEL101
             // 
             SubvolumeGainTrackBar.BackColor = Color.DarkBlue;
             SubvolumeGainTrackBar.ChannelColor = Color.Gray;
+            SubvolumeGainTrackBar.ForeColor = Color.Silver;
             SubvolumeGainTrackBar.Location = new Point(145, 121);
             SubvolumeGainTrackBar.Maximum = 255;
             SubvolumeGainTrackBar.Name = "SubvolumeGainTrackBar";
@@ -1067,7 +1072,7 @@ namespace DEVEL101
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            BackColor = Color.Purple;
+            BackColor = SystemColors.Desktop;
             ClientSize = new Size(727, 241);
             Controls.Add(DNRB);
             Controls.Add(DNFB);

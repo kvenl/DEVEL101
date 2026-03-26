@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 25  (25 mrt 26)
+// Version : 25  (26 mrt 26)
 // Name    : DEVEL101 Yaesu FTDX101D 
 
 
@@ -49,6 +49,14 @@ namespace DEVEL101
         private const string CMD_CENTER = "SS0650000;";
         private const string CMD_CURSOR = "SS0680000;";
         private const string CMD_FIX = "SS06B0000;";
+        private const string CMD_ATT_R     = "RA0;";
+        private const string CMD_ATT_SUB_R = "RA1;";
+        private const string CMD_LEV_R     = "SS04;";
+        private const string CMD_LEV_SUB_R = "SS14;";
+        private const string CMD_NR_R      = "NR0;";
+        private const string CMD_NR_SUB_R  = "NR1;";
+        private const string CMD_DNF_R     = "BC0;";
+        private const string CMD_DNF_SUB_R = "BC1;";
         #endregion
 
         // --- Serial port ---
@@ -82,6 +90,9 @@ namespace DEVEL101
         private string savedMode = "";
         private string savedPstr = "";
         private string FColorB = "Cyan";
+        private double levelShift = 0.0;
+        private bool   nrOn      = false;
+        private bool   dnfOn     = false;
 
         // =================================================================
         public MainForm()
@@ -254,15 +265,19 @@ namespace DEVEL101
             string mode = mainFocused ? CMD_MODE_R : CMD_MODE_SUB_R;
             string ant = mainFocused ? CMD_ANT_R : CMD_ANT_SUB_R;
             string ipo = mainFocused ? CMD_IPO_R : CMD_IPO_SUB_R;
+            string att = mainFocused ? CMD_ATT_R : CMD_ATT_SUB_R;
+            string lev = mainFocused ? CMD_LEV_R : CMD_LEV_SUB_R;
+            string nr  = mainFocused ? CMD_NR_R  : CMD_NR_SUB_R;
+            string dnf = mainFocused ? CMD_DNF_R : CMD_DNF_SUB_R;
 
             pollCmds = new[]
             {
                 CMD_FREQA_R, CMD_FREQB_R,
                 CMD_TEMP,    CMD_RFSQL_R,
                 CMD_FREQA_R, CMD_FREQB_R,
-                dspMod,      dspSpan,      mode,
+                dspMod,      dspSpan,      mode,         lev,
                 CMD_FREQA_R, CMD_FREQB_R,
-                ant,         ipo,          CMD_RX_R,
+                ant,         ipo,          att,          nr,          dnf,         CMD_RX_R,
                 CMD_FREQA_R, CMD_FREQB_R,
                 CMD_RFGAIN_R, CMD_VOL_R,   CMD_PWR_R,
                 CMD_FREQA_R, CMD_FREQB_R,
@@ -346,6 +361,19 @@ namespace DEVEL101
                     SetButtonActive(SSB3, resp[4] == '8');
                 }
             }
+            else if ((resp.StartsWith("SS04") || resp.StartsWith("SS14")) && resp.Length >= 8)
+            {
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    if (double.TryParse(resp.Substring(4),
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture, out double lv))
+                    {
+                        levelShift = lv;
+                        UpdateTextBox(LEV_box, FormatLevel(lv) + " dB", LevColor(lv));
+                    }
+                }
+            }
             else if (resp.StartsWith("MD") && resp.Length >= 4 && (resp[2] == '0' || resp[2] == '1'))
             {
                 if ((resp[2] == '0') == mainFocused)
@@ -374,6 +402,32 @@ namespace DEVEL101
                     SetButtonActive(IPOB, resp[3] == '0');
                     SetButtonActive(AMP1B, resp[3] == '1');
                     SetButtonActive(AMP2B, resp[3] == '2');
+                }
+            }
+            else if (resp.StartsWith("RA") && resp.Length >= 4 && (resp[2] == '0' || resp[2] == '1'))
+            {
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    SetButtonActive(ATT0B,  resp[3] == '0');
+                    SetButtonActive(ATT6B,  resp[3] == '1');
+                    SetButtonActive(ATT12B, resp[3] == '2');
+                    SetButtonActive(ATT18B, resp[3] == '3');
+                }
+            }
+            else if (resp.StartsWith("NR") && resp.Length >= 4 && (resp[2] == '0' || resp[2] == '1'))
+            {
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    nrOn = resp[3] == '1';
+                    SetButtonActive(DNRB, nrOn);
+                }
+            }
+            else if (resp.StartsWith("BC") && resp.Length >= 4 && (resp[2] == '0' || resp[2] == '1'))
+            {
+                if ((resp[2] == '0') == mainFocused)
+                {
+                    dnfOn = resp[3] == '1';
+                    SetButtonActive(DNFB, dnfOn);
                 }
             }
             else if (resp.StartsWith("FR") && resp.Length >= 4)
@@ -653,6 +707,12 @@ namespace DEVEL101
         private void IPOB_click(object sender, MouseEventArgs e) { SendCommand($"PA{(mainFocused ? 0 : 1)}0;"); }
         private void AMP1B_click(object sender, MouseEventArgs e) { SendCommand($"PA{(mainFocused ? 0 : 1)}1;"); }
         private void AMP2B_click(object sender, MouseEventArgs e) { SendCommand($"PA{(mainFocused ? 0 : 1)}2;"); }
+        private void ATT0B_click(object sender, MouseEventArgs e)  { SendCommand($"RA{(mainFocused ? 0 : 1)}0;"); }
+        private void ATT6B_click(object sender, MouseEventArgs e)  { SendCommand($"RA{(mainFocused ? 0 : 1)}1;"); }
+        private void ATT12B_click(object sender, MouseEventArgs e) { SendCommand($"RA{(mainFocused ? 0 : 1)}2;"); }
+        private void ATT18B_click(object sender, MouseEventArgs e) { SendCommand($"RA{(mainFocused ? 0 : 1)}3;"); }
+        private void DNRB_click(object sender, MouseEventArgs e)   { SendCommand($"NR{(mainFocused ? 0 : 1)}{(nrOn  ? 0 : 1)};"); }
+        private void DNFB_click(object sender, MouseEventArgs e)   { SendCommand($"BC{(mainFocused ? 0 : 1)}{(dnfOn ? 0 : 1)};"); }
         private void BANDB_MouseDown(object sender, MouseEventArgs e)
         {
             int x = mainFocused ? 0 : 1;
@@ -881,8 +941,30 @@ namespace DEVEL101
 
         private void button3_Click(object sender, EventArgs e)
         {
-
+            levelShift = 0.0;
+            SendCommand($"SS{(mainFocused ? 0 : 1)}4{FormatLevel(levelShift)};");
+            UpdateTextBox(LEV_box, FormatLevel(levelShift) + " dB", LevColor(levelShift));
         }
+
+        private void LevMIN_Click(object sender, EventArgs e)
+        {
+            levelShift = Math.Max(-30.0, levelShift - 1.0);
+            SendCommand($"SS{(mainFocused ? 0 : 1)}4{FormatLevel(levelShift)};");
+            UpdateTextBox(LEV_box, FormatLevel(levelShift) + " dB", LevColor(levelShift));
+        }
+
+        private void LevPLUS_Click(object sender, EventArgs e)
+        {
+            levelShift = Math.Min(+30.0, levelShift + 1.0);
+            SendCommand($"SS{(mainFocused ? 0 : 1)}4{FormatLevel(levelShift)};");
+            UpdateTextBox(LEV_box, FormatLevel(levelShift) + " dB", LevColor(levelShift));
+        }
+
+        private static string FormatLevel(double v) =>
+            v >= 0 ? $"+{v:00.0}" : $"-{Math.Abs(v):00.0}";
+
+        private static Color LevColor(double v) =>
+            v < 0 ? Color.Red : Color.LimeGreen;
 
         private void pwrControlTrackBar_Click(object sender, EventArgs e)
         {

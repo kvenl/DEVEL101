@@ -83,7 +83,7 @@ namespace DEVEL101
             BANDB = new System.Windows.Forms.Button();
             MINB = new System.Windows.Forms.Button();
             PLUSB = new System.Windows.Forms.Button();
-            button3 = new System.Windows.Forms.Button();
+            LEVRESET = new System.Windows.Forms.Button();
             LevMIN = new System.Windows.Forms.Button();
             LevPLUS = new System.Windows.Forms.Button();
             ATT0B = new System.Windows.Forms.Button();
@@ -92,6 +92,7 @@ namespace DEVEL101
             ATT18B = new System.Windows.Forms.Button();
             DNFB = new System.Windows.Forms.Button();
             DNRB = new System.Windows.Forms.Button();
+            LEV_box = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).BeginInit();
@@ -105,7 +106,7 @@ namespace DEVEL101
             TEMP_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             TEMP_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             TEMP_box.ForeColor = Color.YellowGreen;
-            TEMP_box.Location = new Point(571, 211);
+            TEMP_box.Location = new Point(552, 212);
             TEMP_box.Margin = new System.Windows.Forms.Padding(0);
             TEMP_box.Multiline = true;
             TEMP_box.Name = "TEMP_box";
@@ -125,7 +126,7 @@ namespace DEVEL101
             ExtTuneButton.FlatAppearance.MouseOverBackColor = Color.Blue;
             ExtTuneButton.Font = new Font("Verdana", 8.25F, FontStyle.Bold);
             ExtTuneButton.ForeColor = Color.Yellow;
-            ExtTuneButton.Location = new Point(550, 81);
+            ExtTuneButton.Location = new Point(551, 81);
             ExtTuneButton.Name = "ExtTuneButton";
             ExtTuneButton.Size = new Size(86, 40);
             ExtTuneButton.TabIndex = 8;
@@ -932,21 +933,21 @@ namespace DEVEL101
             PLUSB.UseVisualStyleBackColor = false;
             PLUSB.Click += PLUSB_Click;
             // 
-            // button3
+            // LEVRESET
             // 
-            button3.BackColor = Color.DarkGreen;
-            button3.FlatAppearance.BorderColor = Color.White;
-            button3.FlatAppearance.MouseDownBackColor = Color.Red;
-            button3.FlatAppearance.MouseOverBackColor = Color.Blue;
-            button3.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button3.ForeColor = Color.Yellow;
-            button3.Location = new Point(550, 121);
-            button3.Name = "button3";
-            button3.Size = new Size(88, 40);
-            button3.TabIndex = 73;
-            button3.Text = "RESET LEVEL";
-            button3.UseVisualStyleBackColor = false;
-            button3.Click += button3_Click;
+            LEVRESET.BackColor = Color.DarkGreen;
+            LEVRESET.FlatAppearance.BorderColor = Color.White;
+            LEVRESET.FlatAppearance.MouseDownBackColor = Color.Red;
+            LEVRESET.FlatAppearance.MouseOverBackColor = Color.Blue;
+            LEVRESET.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            LEVRESET.ForeColor = Color.Yellow;
+            LEVRESET.Location = new Point(550, 121);
+            LEVRESET.Name = "LEVRESET";
+            LEVRESET.Size = new Size(88, 40);
+            LEVRESET.TabIndex = 73;
+            LEVRESET.Text = "RESET LEVEL";
+            LEVRESET.UseVisualStyleBackColor = false;
+            LEVRESET.Click += button3_Click;
             // 
             // LevMIN
             // 
@@ -962,6 +963,7 @@ namespace DEVEL101
             LevMIN.TabIndex = 74;
             LevMIN.Text = "[-]";
             LevMIN.UseVisualStyleBackColor = false;
+            LevMIN.Click += LevMIN_Click;
             // 
             // LevPLUS
             // 
@@ -977,6 +979,7 @@ namespace DEVEL101
             LevPLUS.TabIndex = 75;
             LevPLUS.Text = "[+]";
             LevPLUS.UseVisualStyleBackColor = false;
+            LevPLUS.Click += LevPLUS_Click;
             // 
             // ATT0B
             // 
@@ -992,6 +995,7 @@ namespace DEVEL101
             ATT0B.TabIndex = 76;
             ATT0B.Text = "ATT\r\nOFF";
             ATT0B.UseVisualStyleBackColor = false;
+            ATT0B.MouseClick += ATT0B_click;
             // 
             // ATT6B
             // 
@@ -1007,6 +1011,7 @@ namespace DEVEL101
             ATT6B.TabIndex = 77;
             ATT6B.Text = "-6\r\ndB\r\n";
             ATT6B.UseVisualStyleBackColor = false;
+            ATT6B.MouseClick += ATT6B_click;
             // 
             // ATT12B
             // 
@@ -1022,6 +1027,7 @@ namespace DEVEL101
             ATT12B.TabIndex = 78;
             ATT12B.Text = "-12\r\ndB\r\n";
             ATT12B.UseVisualStyleBackColor = false;
+            ATT12B.MouseClick += ATT12B_click;
             // 
             // ATT18B
             // 
@@ -1037,6 +1043,7 @@ namespace DEVEL101
             ATT18B.TabIndex = 79;
             ATT18B.Text = "-18\r\ndB\r\n";
             ATT18B.UseVisualStyleBackColor = false;
+            ATT18B.MouseClick += ATT18B_click;
             // 
             // DNFB
             // 
@@ -1050,8 +1057,9 @@ namespace DEVEL101
             DNFB.Name = "DNFB";
             DNFB.Size = new Size(44, 40);
             DNFB.TabIndex = 80;
-            DNFB.Text = "DNF";
+            DNFB.Text = "BC";
             DNFB.UseVisualStyleBackColor = false;
+            DNFB.MouseClick += DNFB_click;
             // 
             // DNRB
             // 
@@ -1065,8 +1073,26 @@ namespace DEVEL101
             DNRB.Name = "DNRB";
             DNRB.Size = new Size(44, 40);
             DNRB.TabIndex = 81;
-            DNRB.Text = "DNR";
+            DNRB.Text = "NR";
             DNRB.UseVisualStyleBackColor = false;
+            DNRB.MouseClick += DNRB_click;
+            // 
+            // LEV_box
+            // 
+            LEV_box.BackColor = Color.Black;
+            LEV_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            LEV_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            LEV_box.ForeColor = Color.YellowGreen;
+            LEV_box.Location = new Point(593, 204);
+            LEV_box.Margin = new System.Windows.Forms.Padding(0);
+            LEV_box.Multiline = true;
+            LEV_box.Name = "LEV_box";
+            LEV_box.Size = new Size(44, 39);
+            LEV_box.TabIndex = 82;
+            LEV_box.TabStop = false;
+            LEV_box.Text = "+30\r\ndB";
+            LEV_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            LEV_box.WordWrap = false;
             // 
             // MainForm
             // 
@@ -1074,6 +1100,7 @@ namespace DEVEL101
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = SystemColors.Desktop;
             ClientSize = new Size(727, 241);
+            Controls.Add(LEV_box);
             Controls.Add(DNRB);
             Controls.Add(DNFB);
             Controls.Add(ATT18B);
@@ -1082,7 +1109,7 @@ namespace DEVEL101
             Controls.Add(ATT0B);
             Controls.Add(LevPLUS);
             Controls.Add(LevMIN);
-            Controls.Add(button3);
+            Controls.Add(LEVRESET);
             Controls.Add(PLUSB);
             Controls.Add(MINB);
             Controls.Add(BANDB);
@@ -1209,7 +1236,7 @@ namespace DEVEL101
         private System.Windows.Forms.Button BANDB;
         private System.Windows.Forms.Button MINB;
         private System.Windows.Forms.Button PLUSB;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button LEVRESET;
         private System.Windows.Forms.Button LevMIN;
         private System.Windows.Forms.Button LevPLUS;
         private System.Windows.Forms.Button ATT0B;
@@ -1218,6 +1245,7 @@ namespace DEVEL101
         private System.Windows.Forms.Button ATT18B;
         private System.Windows.Forms.Button DNFB;
         private System.Windows.Forms.Button DNRB;
+        private System.Windows.Forms.TextBox LEV_box;
     }
 }
 

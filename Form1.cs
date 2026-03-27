@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 26  (27 mrt 26)
+// Version : 27  (27 mrt 26)
 // Name    : DEVEL101 Yaesu FTDX101D 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v26 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v27 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -441,12 +441,12 @@ namespace DEVEL101
             {
                 if (int.TryParse(resp.Substring(3, 3), out int v))
                     SafeUpdateSlider(rfGainTrackBar, textBox1,
-                        rfGainTrackBar.Maximum - v, (rfGainTrackBar.Maximum - v).ToString("D3"));
+                        rfGainTrackBar.Maximum - v, ToDisplay(rfGainTrackBar.Maximum - v));
             }
             else if (resp.StartsWith("AG0") && resp.Length >= 6)
             {
                 if (int.TryParse(resp.Substring(3, 3), out int v))
-                    SafeUpdateSlider(volumeGainTrackBar, textBox2, v, v.ToString("D3"));
+                    SafeUpdateSlider(volumeGainTrackBar, textBox2, v, ToDisplay(v));
             }
             else if (resp.StartsWith("PC") && resp.Length >= 5)
             {
@@ -457,12 +457,12 @@ namespace DEVEL101
             {
                 if (int.TryParse(resp.Substring(3, 3), out int v))
                     SafeUpdateSlider(SubrfGainTrackBar, textBox5,
-                        SubrfGainTrackBar.Maximum - v, (SubrfGainTrackBar.Maximum - v).ToString("D3"));
+                        SubrfGainTrackBar.Maximum - v, ToDisplay(SubrfGainTrackBar.Maximum - v));
             }
             else if (resp.StartsWith("AG1") && resp.Length >= 6)
             {
                 if (int.TryParse(resp.Substring(3, 3), out int v))
-                    SafeUpdateSlider(SubvolumeGainTrackBar, textBox6, v, v.ToString("D3"));
+                    SafeUpdateSlider(SubvolumeGainTrackBar, textBox6, v, ToDisplay(v));
             }
             else if (resp.StartsWith("FA") && resp.Length >= 4)
             {
@@ -508,10 +508,17 @@ namespace DEVEL101
 
         private void SetButtonActive(Button btn, bool active)
         {
-            Color target = active ? Color.DarkRed : Color.DarkGreen;
+            Color inactiveColor = btn == RX1B ? Color.Silver
+                                : btn == RX2B ? Color.DarkBlue
+                                : Color.DarkGreen;
+            Color inactiveFore  = btn == RX1B ? Color.DarkBlue
+                                : btn == RX2B ? Color.Silver
+                                : Color.Yellow;
+            Color target    = active ? Color.DarkRed : inactiveColor;
+            Color targetFore = active ? Color.Yellow  : inactiveFore;
             if (btn.BackColor == target) return;
             btn.BackColor = target;
-            btn.ForeColor = Color.Yellow;
+            btn.ForeColor = targetFore;
         }
 
         private void UpdateTextBox(Control tb, string text, Color? foreColor = null)
@@ -621,7 +628,7 @@ namespace DEVEL101
         {
             if (isUpdatingFromRadio) return;
             int val = rfGainTrackBar.Value;
-            UpdateTextBox(textBox1, val.ToString("D3"));
+            UpdateTextBox(textBox1, ToDisplay(val));
             QueueSliderCommand(rfGainTrackBar, $"RG0{(rfGainTrackBar.Maximum - val):D3};");
         }
 
@@ -644,16 +651,16 @@ namespace DEVEL101
         {
             if (isUpdatingFromRadio) return;
             int val = SubrfGainTrackBar.Value;
-            UpdateTextBox(textBox5, val.ToString("D3"));
+            UpdateTextBox(textBox5, ToDisplay(val));
             QueueSliderCommand(SubrfGainTrackBar, $"RG1{(SubrfGainTrackBar.Maximum - val):D3};");
         }
 
         private void SubvolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
             if (isUpdatingFromRadio) return;
-            string val = SubvolumeGainTrackBar.Value.ToString("D3");
-            UpdateTextBox(textBox6, val);
-            QueueSliderCommand(SubvolumeGainTrackBar, $"AG1{val};");
+            int rawVal = SubvolumeGainTrackBar.Value;
+            UpdateTextBox(textBox6, ToDisplay(rawVal));
+            QueueSliderCommand(SubvolumeGainTrackBar, $"AG1{rawVal:D3};");
         }
 
         #endregion
@@ -962,6 +969,9 @@ namespace DEVEL101
 
         private static string FormatLevel(double v) =>
             v.ToString("+00.0;-00.0", System.Globalization.CultureInfo.InvariantCulture);
+
+        private static string ToDisplay(int v) =>
+            ((int)Math.Round(v / 255.0 * 100)).ToString("D3");
 
         private static Color LevColor(double v) =>
             v < 0 ? Color.Red : Color.LimeGreen;

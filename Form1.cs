@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 25  (26 mrt 26)
+// Version : 26  (27 mrt 26)
 // Name    : DEVEL101 Yaesu FTDX101D 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v25 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v26 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -939,7 +939,7 @@ namespace DEVEL101
         private void FixB_Click(object sender, EventArgs e) { }
         private void rfGainTrackBar_Scroll(object sender, EventArgs e) { }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void LEVRESET_Click(object sender, EventArgs e)
         {
             levelShift = 0.0;
             SendCommand($"SS{(mainFocused ? 0 : 1)}4{FormatLevel(levelShift)};");
@@ -961,7 +961,7 @@ namespace DEVEL101
         }
 
         private static string FormatLevel(double v) =>
-            v >= 0 ? $"+{v:00.0}" : $"-{Math.Abs(v):00.0}";
+            v.ToString("+00.0;-00.0", System.Globalization.CultureInfo.InvariantCulture);
 
         private static Color LevColor(double v) =>
             v < 0 ? Color.Red : Color.LimeGreen;

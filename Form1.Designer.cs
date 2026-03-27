@@ -327,34 +327,34 @@ namespace DEVEL101
             // 
             // RX1B
             // 
-            RX1B.BackColor = Color.DarkGreen;
+            RX1B.BackColor = Color.Silver;
             RX1B.FlatAppearance.BorderColor = Color.White;
             RX1B.FlatAppearance.MouseDownBackColor = Color.Red;
             RX1B.FlatAppearance.MouseOverBackColor = Color.Blue;
             RX1B.Font = new Font("Verdana", 6.75F, FontStyle.Bold);
-            RX1B.ForeColor = Color.Yellow;
+            RX1B.ForeColor = Color.DarkBlue;
             RX1B.Location = new Point(284, 161);
             RX1B.Name = "RX1B";
             RX1B.Size = new Size(88, 40);
             RX1B.TabIndex = 33;
-            RX1B.Text = "RX-M";
+            RX1B.Text = "MAIN\r\nRX";
             RX1B.UseVisualStyleBackColor = false;
             RX1B.MouseClick += RX1B_click;
             RX1B.MouseDown += RX1B_MouseDown;
             // 
             // RX2B
             // 
-            RX2B.BackColor = Color.DarkGreen;
+            RX2B.BackColor = Color.DarkBlue;
             RX2B.FlatAppearance.BorderColor = Color.White;
             RX2B.FlatAppearance.MouseDownBackColor = Color.Red;
             RX2B.FlatAppearance.MouseOverBackColor = Color.Blue;
             RX2B.Font = new Font("Verdana", 6.75F, FontStyle.Bold);
-            RX2B.ForeColor = Color.Yellow;
+            RX2B.ForeColor = Color.Silver;
             RX2B.Location = new Point(284, 201);
             RX2B.Name = "RX2B";
             RX2B.Size = new Size(87, 40);
             RX2B.TabIndex = 34;
-            RX2B.Text = "RX-S";
+            RX2B.Text = "SUB\r\nRX";
             RX2B.UseVisualStyleBackColor = false;
             RX2B.MouseClick += RX2B_click;
             RX2B.MouseDown += RX2B_MouseDown;
@@ -947,7 +947,7 @@ namespace DEVEL101
             LEVRESET.TabIndex = 73;
             LEVRESET.Text = "RESET LEVEL";
             LEVRESET.UseVisualStyleBackColor = false;
-            LEVRESET.Click += button3_Click;
+            LEVRESET.Click += LEVRESET_Click;
             // 
             // LevMIN
             // 

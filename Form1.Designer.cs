@@ -811,15 +811,15 @@ namespace DEVEL101
             // 
             // pwrControlLabel
             // 
-            pwrControlLabel.AutoSize = true;
-            pwrControlLabel.BackColor = Color.DarkGreen;
+            pwrControlLabel.BackColor = Color.Maroon;
             pwrControlLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
             pwrControlLabel.ForeColor = Color.Yellow;
-            pwrControlLabel.Location = new Point(662, 2);
+            pwrControlLabel.Location = new Point(660, 5);
             pwrControlLabel.Name = "pwrControlLabel";
-            pwrControlLabel.Size = new Size(38, 10);
+            pwrControlLabel.Size = new Size(45, 10);
             pwrControlLabel.TabIndex = 0;
             pwrControlLabel.Text = "POWER";
+            pwrControlLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // SubrfGainLabel
             // 

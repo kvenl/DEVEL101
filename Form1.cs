@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 27  (27 mrt 26)
+// Version : 28  (29 mrt 26)
 // Name    : DEVEL101 Yaesu FTDX101D 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v27 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v28 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";

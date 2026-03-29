@@ -23,11 +23,11 @@ namespace DEVEL101
         private bool        _isDragging     = false;
 
         // Layout constants
-        private const int ThumbHalfWidth    = 8;   // half-width of thumb (perpendicular to track)
+        private const int ThumbHalfWidth    = 10;  // half-width of thumb (perpendicular to track)
         private const int ThumbHalfLength   = 5;   // half-length of thumb (along track)
         private const int ChannelHalfWidth  = 2;   // half-width of the channel groove
         private const int TickLen           = 4;   // tick mark length in pixels
-        private const int TickGap           = 2;   // gap between thumb edge and tick start
+        private const int TickGap           = 0;   // gap between thumb edge and tick start
 
         public event EventHandler ValueChanged;
 

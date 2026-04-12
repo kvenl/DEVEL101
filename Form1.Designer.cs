@@ -1166,7 +1166,7 @@ namespace DEVEL101
             Controls.Add(textBox3);
             Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             ForeColor = Color.Yellow;
-            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             ImeMode = System.Windows.Forms.ImeMode.Disable;
             Location = new Point(1, 1);
             Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 2.10  (12 apr 26)
+// Version : 2.11  (12 apr 26)
 // Name    : DEVEL101 Yaesu FTDX101 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v2.10 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v2.11 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -97,10 +97,18 @@ namespace DEVEL101
         private int maxPower = 100;
         private string radioModel = "FTDX101D";
 
+        // --- Proportional resize ---
+        private readonly SizeF _designClient = new SizeF(727, 241);
+        private Dictionary<Control, RectangleF> _designBounds;
+        private Dictionary<Control, Font>       _designFonts;
+        private readonly Dictionary<Control, Font> _scaledFonts = new();
+
         // =================================================================
         public MainForm()
         {
             InitializeComponent();
+            StoreDesignLayout();
+            MinimumSize = this.Size;
 
             // Restore window position (multi-monitor safe)
             if (Properties.Settings.Default.IsLocationSaved)
@@ -529,6 +537,51 @@ namespace DEVEL101
 
         // =================================================================
         #region UI Helpers
+
+        private void StoreDesignLayout()
+        {
+            _designBounds = new Dictionary<Control, RectangleF>();
+            _designFonts  = new Dictionary<Control, Font>();
+            foreach (Control c in Controls)
+            {
+                _designBounds[c] = new RectangleF(c.Left, c.Top, c.Width, c.Height);
+                _designFonts[c]  = c.Font;
+            }
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            if (_designBounds == null || ClientSize.Width == 0 || ClientSize.Height == 0) return;
+
+            float sx = ClientSize.Width  / _designClient.Width;
+            float sy = ClientSize.Height / _designClient.Height;
+            float sf = Math.Min(sx, sy);
+
+            SuspendLayout();
+            foreach (Control c in Controls)
+            {
+                if (!_designBounds.TryGetValue(c, out RectangleF orig)) continue;
+
+                c.Bounds = Rectangle.Round(new RectangleF(
+                    orig.X * sx, orig.Y * sy,
+                    orig.Width * sx, orig.Height * sy));
+
+                if (_designFonts.TryGetValue(c, out Font df))
+                {
+                    float newSize = Math.Max(1f, df.Size * sf);
+                    if (Math.Abs(c.Font.Size - newSize) > 0.05f)
+                    {
+                        _scaledFonts.TryGetValue(c, out Font old);
+                        Font scaled = new Font(df.FontFamily, newSize, df.Style, df.Unit);
+                        _scaledFonts[c] = scaled;
+                        c.Font = scaled;
+                        old?.Dispose();
+                    }
+                }
+            }
+            ResumeLayout(false);
+        }
 
         private void SetButtonActive(Button btn, bool active)
         {

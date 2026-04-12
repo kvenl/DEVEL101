@@ -11,6 +11,9 @@
     <Setting Name="IsLocationSaved" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="FormSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">743, 279</Value>
+    </Setting>
     <Setting Name="StepMain" Type="System.String" Scope="User">
       <Value Profile="(Default)">500 Hz</Value>
     </Setting>

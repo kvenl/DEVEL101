@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 2.11  (12 apr 26)
+// Version : 2.12  (12 apr 26)
 // Name    : DEVEL101 Yaesu FTDX101 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v2.11 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v2.12 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -102,6 +102,7 @@ namespace DEVEL101
         private Dictionary<Control, RectangleF> _designBounds;
         private Dictionary<Control, Font>       _designFonts;
         private readonly Dictionary<Control, Font> _scaledFonts = new();
+        private float _aspectRatio;
 
         // =================================================================
         public MainForm()
@@ -109,10 +110,15 @@ namespace DEVEL101
             InitializeComponent();
             StoreDesignLayout();
             MinimumSize = this.Size;
+            _aspectRatio = (float)this.Width / this.Height;
 
-            // Restore window position (multi-monitor safe)
+            // Restore window size and position
             if (Properties.Settings.Default.IsLocationSaved)
             {
+                Size savedSize = Properties.Settings.Default.FormSize;
+                if (savedSize.Width >= MinimumSize.Width && savedSize.Height >= MinimumSize.Height)
+                    this.Size = savedSize;
+
                 Point saved = Properties.Settings.Default.FormLocation;
                 if (Screen.AllScreens.Any(s => s.WorkingArea.Contains(saved)))
                 {
@@ -547,6 +553,47 @@ namespace DEVEL101
                 _designBounds[c] = new RectangleF(c.Left, c.Top, c.Width, c.Height);
                 _designFonts[c]  = c.Font;
             }
+        }
+
+        // ---- Aspect-ratio lock during resize ----
+        private const int WM_SIZING      = 0x0214;
+        private const int WMSZ_LEFT      = 1, WMSZ_RIGHT  = 2, WMSZ_TOP    = 3;
+        private const int WMSZ_TOPLEFT   = 4, WMSZ_TOPRIGHT = 5;
+        private const int WMSZ_BOTTOM    = 6, WMSZ_BOTTOMLEFT = 7, WMSZ_BOTTOMRIGHT = 8;
+
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct RECT { public int Left, Top, Right, Bottom; }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_SIZING && _aspectRatio > 0)
+            {
+                var rc = (RECT)System.Runtime.InteropServices.Marshal.PtrToStructure(m.LParam, typeof(RECT))!;
+                int w    = rc.Right  - rc.Left;
+                int h    = rc.Bottom - rc.Top;
+                int edge = m.WParam.ToInt32();
+
+                bool heightDriven = edge == WMSZ_TOP || edge == WMSZ_BOTTOM;
+                if (heightDriven)
+                    w = (int)Math.Round(h * _aspectRatio);
+                else
+                    h = (int)Math.Round(w / _aspectRatio);
+
+                switch (edge)
+                {
+                    case WMSZ_RIGHT:
+                    case WMSZ_BOTTOM:
+                    case WMSZ_BOTTOMRIGHT: rc.Right = rc.Left + w; rc.Bottom = rc.Top  + h; break;
+                    case WMSZ_LEFT:        rc.Left  = rc.Right - w; rc.Bottom = rc.Top  + h; break;
+                    case WMSZ_TOP:         rc.Right = rc.Left  + w; rc.Top    = rc.Bottom - h; break;
+                    case WMSZ_TOPLEFT:     rc.Left  = rc.Right - w; rc.Top    = rc.Bottom - h; break;
+                    case WMSZ_TOPRIGHT:    rc.Right = rc.Left  + w; rc.Top    = rc.Bottom - h; break;
+                    case WMSZ_BOTTOMLEFT:  rc.Left  = rc.Right - w; rc.Bottom = rc.Top   + h; break;
+                }
+
+                System.Runtime.InteropServices.Marshal.StructureToPtr(rc, m.LParam, false);
+            }
+            base.WndProc(ref m);
         }
 
         protected override void OnResize(EventArgs e)
@@ -1006,9 +1053,9 @@ namespace DEVEL101
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Properties.Settings.Default.FormLocation = this.WindowState == FormWindowState.Normal
-                ? this.Location
-                : this.RestoreBounds.Location;
+            bool normal = this.WindowState == FormWindowState.Normal;
+            Properties.Settings.Default.FormLocation = normal ? this.Location       : this.RestoreBounds.Location;
+            Properties.Settings.Default.FormSize     = normal ? this.Size           : this.RestoreBounds.Size;
             Properties.Settings.Default.IsLocationSaved = true;
             Properties.Settings.Default.Save();
 

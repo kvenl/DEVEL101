@@ -10,15 +10,15 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 28  (29 mrt 26)
-// Name    : DEVEL101 Yaesu FTDX101D 
+// Version : 2.10  (12 apr 26)
+// Name    : DEVEL101 Yaesu FTDX101 
 
 
 namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v28 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v2.10 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -49,14 +49,15 @@ namespace DEVEL101
         private const string CMD_CENTER = "SS0650000;";
         private const string CMD_CURSOR = "SS0680000;";
         private const string CMD_FIX = "SS06B0000;";
-        private const string CMD_ATT_R     = "RA0;";
+        private const string CMD_ATT_R = "RA0;";
         private const string CMD_ATT_SUB_R = "RA1;";
-        private const string CMD_LEV_R     = "SS04;";
+        private const string CMD_LEV_R = "SS04;";
         private const string CMD_LEV_SUB_R = "SS14;";
-        private const string CMD_NR_R      = "NR0;";
-        private const string CMD_NR_SUB_R  = "NR1;";
-        private const string CMD_DNF_R     = "BC0;";
+        private const string CMD_NR_R = "NR0;";
+        private const string CMD_NR_SUB_R = "NR1;";
+        private const string CMD_DNF_R = "BC0;";
         private const string CMD_DNF_SUB_R = "BC1;";
+        private const string CMD_ID = "ID;";
         #endregion
 
         // --- Serial port ---
@@ -91,8 +92,10 @@ namespace DEVEL101
         private string savedPstr = "";
         private string FColorB = "Cyan";
         private double levelShift = 0.0;
-        private bool   nrOn      = false;
-        private bool   dnfOn     = false;
+        private bool nrOn = false;
+        private bool dnfOn = false;
+        private int maxPower = 100;
+        private string radioModel = "FTDX101D";
 
         // =================================================================
         public MainForm()
@@ -267,7 +270,7 @@ namespace DEVEL101
             string ipo = mainFocused ? CMD_IPO_R : CMD_IPO_SUB_R;
             string att = mainFocused ? CMD_ATT_R : CMD_ATT_SUB_R;
             string lev = mainFocused ? CMD_LEV_R : CMD_LEV_SUB_R;
-            string nr  = mainFocused ? CMD_NR_R  : CMD_NR_SUB_R;
+            string nr = mainFocused ? CMD_NR_R : CMD_NR_SUB_R;
             string dnf = mainFocused ? CMD_DNF_R : CMD_DNF_SUB_R;
 
             pollCmds = new[]
@@ -289,6 +292,27 @@ namespace DEVEL101
         /// <summary>One-shot initial read of all parameters on connect (runs on background thread).</summary>
         private void ReadRadioStatus()
         {
+            // Detect radio model before anything else
+            string idResp = SendReceive(CMD_ID);
+            if (idResp.StartsWith("ID") && idResp.Length >= 6)
+            {
+                string id = idResp.Substring(2);
+                radioModel = id == "0682" ? "FTDX101MP" : "FTDX101D";
+                maxPower = id == "0682" ? 200 : 100;
+            }
+            else
+            {
+                radioModel = "FTDX101D";
+                maxPower = 100;
+            }
+            string portName = serialPort.PortName;
+            Invoke((Action)(() =>
+            {
+                pwrControlTrackBar.Maximum = maxPower;
+                pwrControlTrackBar.TickFrequency = maxPower / 20;
+                this.Text = $"{AppTitle} - {portName} [{radioModel}]";
+            }));
+
             foreach (string cmd in pollCmds)
             {
                 string resp = SendReceive(cmd);
@@ -408,8 +432,8 @@ namespace DEVEL101
             {
                 if ((resp[2] == '0') == mainFocused)
                 {
-                    SetButtonActive(ATT0B,  resp[3] == '0');
-                    SetButtonActive(ATT6B,  resp[3] == '1');
+                    SetButtonActive(ATT0B, resp[3] == '0');
+                    SetButtonActive(ATT6B, resp[3] == '1');
                     SetButtonActive(ATT12B, resp[3] == '2');
                     SetButtonActive(ATT18B, resp[3] == '3');
                 }
@@ -511,11 +535,11 @@ namespace DEVEL101
             Color inactiveColor = btn == RX1B ? Color.Silver
                                 : btn == RX2B ? Color.DarkBlue
                                 : Color.DarkGreen;
-            Color inactiveFore  = btn == RX1B ? Color.DarkBlue
+            Color inactiveFore = btn == RX1B ? Color.DarkBlue
                                 : btn == RX2B ? Color.Silver
                                 : Color.Yellow;
-            Color target    = active ? Color.DarkRed : inactiveColor;
-            Color targetFore = active ? Color.Yellow  : inactiveFore;
+            Color target = active ? Color.DarkRed : inactiveColor;
+            Color targetFore = active ? Color.Yellow : inactiveFore;
             if (btn.BackColor == target) return;
             btn.BackColor = target;
             btn.ForeColor = targetFore;
@@ -714,12 +738,12 @@ namespace DEVEL101
         private void IPOB_click(object sender, MouseEventArgs e) { SendCommand($"PA{(mainFocused ? 0 : 1)}0;"); }
         private void AMP1B_click(object sender, MouseEventArgs e) { SendCommand($"PA{(mainFocused ? 0 : 1)}1;"); }
         private void AMP2B_click(object sender, MouseEventArgs e) { SendCommand($"PA{(mainFocused ? 0 : 1)}2;"); }
-        private void ATT0B_click(object sender, MouseEventArgs e)  { SendCommand($"RA{(mainFocused ? 0 : 1)}0;"); }
-        private void ATT6B_click(object sender, MouseEventArgs e)  { SendCommand($"RA{(mainFocused ? 0 : 1)}1;"); }
+        private void ATT0B_click(object sender, MouseEventArgs e) { SendCommand($"RA{(mainFocused ? 0 : 1)}0;"); }
+        private void ATT6B_click(object sender, MouseEventArgs e) { SendCommand($"RA{(mainFocused ? 0 : 1)}1;"); }
         private void ATT12B_click(object sender, MouseEventArgs e) { SendCommand($"RA{(mainFocused ? 0 : 1)}2;"); }
         private void ATT18B_click(object sender, MouseEventArgs e) { SendCommand($"RA{(mainFocused ? 0 : 1)}3;"); }
-        private void DNRB_click(object sender, MouseEventArgs e)   { SendCommand($"NR{(mainFocused ? 0 : 1)}{(nrOn  ? 0 : 1)};"); }
-        private void DNFB_click(object sender, MouseEventArgs e)   { SendCommand($"BC{(mainFocused ? 0 : 1)}{(dnfOn ? 0 : 1)};"); }
+        private void DNRB_click(object sender, MouseEventArgs e) { SendCommand($"NR{(mainFocused ? 0 : 1)}{(nrOn ? 0 : 1)};"); }
+        private void DNFB_click(object sender, MouseEventArgs e) { SendCommand($"BC{(mainFocused ? 0 : 1)}{(dnfOn ? 0 : 1)};"); }
         private void BANDB_MouseDown(object sender, MouseEventArgs e)
         {
             int x = mainFocused ? 0 : 1;
@@ -977,6 +1001,11 @@ namespace DEVEL101
             v < 0 ? Color.Red : Color.LimeGreen;
 
         private void pwrControlTrackBar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
         {
 
         }

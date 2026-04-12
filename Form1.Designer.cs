@@ -502,7 +502,7 @@ namespace DEVEL101
             textBox1.Size = new Size(45, 16);
             textBox1.TabIndex = 46;
             textBox1.TabStop = false;
-            textBox1.Text = "<mrf>";
+            textBox1.Text = "000";
             textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox1.WordWrap = false;
             // 
@@ -519,9 +519,10 @@ namespace DEVEL101
             textBox2.Size = new Size(46, 18);
             textBox2.TabIndex = 47;
             textBox2.TabStop = false;
-            textBox2.Text = "<mvol>";
+            textBox2.Text = "000";
             textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox2.WordWrap = false;
+            textBox2.TextChanged += textBox2_TextChanged;
             // 
             // pwrControlTrackBar
             // 
@@ -554,7 +555,7 @@ namespace DEVEL101
             textBox3.Size = new Size(45, 16);
             textBox3.TabIndex = 45;
             textBox3.TabStop = false;
-            textBox3.Text = "<pwr>";
+            textBox3.Text = "000";
             textBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox3.WordWrap = false;
             // 
@@ -747,7 +748,7 @@ namespace DEVEL101
             textBox5.Size = new Size(45, 16);
             textBox5.TabIndex = 61;
             textBox5.TabStop = false;
-            textBox5.Text = "<srf>";
+            textBox5.Text = "000";
             textBox5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox5.WordWrap = false;
             // 
@@ -764,7 +765,7 @@ namespace DEVEL101
             textBox6.Size = new Size(45, 18);
             textBox6.TabIndex = 62;
             textBox6.TabStop = false;
-            textBox6.Text = "<svol>";
+            textBox6.Text = "000";
             textBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox6.WordWrap = false;
             // 
@@ -1170,7 +1171,7 @@ namespace DEVEL101
             Location = new Point(1, 1);
             Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             MaximizeBox = false;
-            MinimizeBox = false;
+            MinimizeBox = true;
             Name = "MainForm";
             TransparencyKey = Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();

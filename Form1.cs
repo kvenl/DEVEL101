@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 2.12  (12 apr 26)
+// Version : 3.0 beta  (17 apr 26)
 // Name    : DEVEL101 Yaesu FTDX101 
 
 

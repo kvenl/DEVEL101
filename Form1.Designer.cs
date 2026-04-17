@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace DEVEL101
 {
@@ -113,7 +113,7 @@ namespace DEVEL101
             TEMP_box.Size = new Size(44, 20);
             TEMP_box.TabIndex = 5;
             TEMP_box.TabStop = false;
-            TEMP_box.Text = "00°C";
+            TEMP_box.Text = "00�C";
             TEMP_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             TEMP_box.WordWrap = false;
             // 
@@ -467,7 +467,7 @@ namespace DEVEL101
             FreqM_box.ForeColor = Color.Gold;
             FreqM_box.Location = new Point(1, 2);
             FreqM_box.Name = "FreqM_box";
-            FreqM_box.Size = new Size(189, 56);
+            FreqM_box.Size = new Size(189, 54);
             FreqM_box.TabIndex = 44;
             FreqM_box.Text = "MAIN";
             FreqM_box.UseVisualStyleBackColor = false;
@@ -483,7 +483,7 @@ namespace DEVEL101
             FreqS_box.ForeColor = Color.Gold;
             FreqS_box.Location = new Point(1, 62);
             FreqS_box.Name = "FreqS_box";
-            FreqS_box.Size = new Size(189, 56);
+            FreqS_box.Size = new Size(189, 46);
             FreqS_box.TabIndex = 45;
             FreqS_box.Text = "SUB";
             FreqS_box.UseVisualStyleBackColor = false;
@@ -705,35 +705,37 @@ namespace DEVEL101
             // 
             // SubrfGainTrackBar
             // 
-            SubrfGainTrackBar.BackColor = Color.DarkBlue;
+            SubrfGainTrackBar.BackColor = Color.Silver;
             SubrfGainTrackBar.ChannelColor = Color.Gray;
-            SubrfGainTrackBar.ForeColor = Color.Silver;
+            SubrfGainTrackBar.ForeColor = Color.DarkBlue;
             SubrfGainTrackBar.Location = new Point(98, 121);
-            SubrfGainTrackBar.Maximum = 255;
+            SubrfGainTrackBar.Maximum = 23;
+            SubrfGainTrackBar.Minimum = 1;
             SubrfGainTrackBar.Name = "SubrfGainTrackBar";
             SubrfGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
             SubrfGainTrackBar.Size = new Size(45, 105);
             SubrfGainTrackBar.TabIndex = 59;
-            SubrfGainTrackBar.TickColor = Color.White;
-            SubrfGainTrackBar.TickFrequency = 16;
+            SubrfGainTrackBar.TickColor = Color.DarkBlue;
+            SubrfGainTrackBar.TickFrequency = 1;
             SubrfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
-            SubrfGainTrackBar.Value = 10;
+            SubrfGainTrackBar.Value = 1;
             // 
             // SubvolumeGainTrackBar
             // 
-            SubvolumeGainTrackBar.BackColor = Color.DarkBlue;
+            SubvolumeGainTrackBar.BackColor = Color.Silver;
             SubvolumeGainTrackBar.ChannelColor = Color.Gray;
-            SubvolumeGainTrackBar.ForeColor = Color.Silver;
+            SubvolumeGainTrackBar.ForeColor = Color.DarkBlue;
             SubvolumeGainTrackBar.Location = new Point(145, 121);
-            SubvolumeGainTrackBar.Maximum = 255;
+            SubvolumeGainTrackBar.Minimum = -60;
+            SubvolumeGainTrackBar.Maximum = 60;
             SubvolumeGainTrackBar.Name = "SubvolumeGainTrackBar";
             SubvolumeGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
             SubvolumeGainTrackBar.Size = new Size(45, 105);
             SubvolumeGainTrackBar.TabIndex = 60;
-            SubvolumeGainTrackBar.TickColor = Color.White;
-            SubvolumeGainTrackBar.TickFrequency = 16;
+            SubvolumeGainTrackBar.TickColor = Color.DarkBlue;
+            SubvolumeGainTrackBar.TickFrequency = 10;
             SubvolumeGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
-            SubvolumeGainTrackBar.Value = 10;
+            SubvolumeGainTrackBar.Value = 0;
             // 
             // textBox5
             // 
@@ -788,70 +790,70 @@ namespace DEVEL101
             // 
             // rfGainLabel
             // 
-            rfGainLabel.AutoSize = true;
-            rfGainLabel.BackColor = Color.DarkGreen;
-            rfGainLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rfGainLabel.ForeColor = Color.Yellow;
-            rfGainLabel.Location = new Point(2, 122);
+            rfGainLabel.BackColor = Color.Silver;
+            rfGainLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rfGainLabel.ForeColor = Color.Black;
+            rfGainLabel.Location = new Point(1, 111);
             rfGainLabel.Name = "rfGainLabel";
-            rfGainLabel.Size = new Size(44, 10);
+            rfGainLabel.Size = new Size(45, 12);
             rfGainLabel.TabIndex = 0;
-            rfGainLabel.Text = "MAIN RF";
+            rfGainLabel.Text = "RF";
+            rfGainLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // volumeGainLabel
             // 
-            volumeGainLabel.AutoSize = true;
-            volumeGainLabel.BackColor = Color.DarkGreen;
-            volumeGainLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            volumeGainLabel.ForeColor = Color.Yellow;
-            volumeGainLabel.Location = new Point(44, 122);
+            volumeGainLabel.BackColor = Color.Silver;
+            volumeGainLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            volumeGainLabel.ForeColor = Color.Black;
+            volumeGainLabel.Location = new Point(48, 111);
             volumeGainLabel.Name = "volumeGainLabel";
-            volumeGainLabel.Size = new Size(51, 10);
+            volumeGainLabel.Size = new Size(45, 12);
             volumeGainLabel.TabIndex = 0;
-            volumeGainLabel.Text = "MAIN VOL";
+            volumeGainLabel.Text = "VOL";
+            volumeGainLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // pwrControlLabel
             // 
             pwrControlLabel.BackColor = Color.Maroon;
-            pwrControlLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            pwrControlLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
             pwrControlLabel.ForeColor = Color.Yellow;
             pwrControlLabel.Location = new Point(660, 5);
             pwrControlLabel.Name = "pwrControlLabel";
-            pwrControlLabel.Size = new Size(45, 10);
+            pwrControlLabel.Size = new Size(45, 12);
             pwrControlLabel.TabIndex = 0;
             pwrControlLabel.Text = "POWER";
             pwrControlLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // SubrfGainLabel
             // 
-            SubrfGainLabel.AutoSize = true;
-            SubrfGainLabel.BackColor = Color.DarkGreen;
-            SubrfGainLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            SubrfGainLabel.ForeColor = Color.Yellow;
-            SubrfGainLabel.Location = new Point(101, 122);
+            SubrfGainLabel.BackColor = Color.Silver;
+            SubrfGainLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            SubrfGainLabel.ForeColor = Color.Black;
+            SubrfGainLabel.Location = new Point(98, 111);
             SubrfGainLabel.Name = "SubrfGainLabel";
-            SubrfGainLabel.Size = new Size(38, 10);
+            SubrfGainLabel.Size = new Size(45, 12);
             SubrfGainLabel.TabIndex = 0;
-            SubrfGainLabel.Text = "SUB RF";
+            SubrfGainLabel.Text = "WIDTH";
+            SubrfGainLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // SubvolumeGainLabel
             // 
-            SubvolumeGainLabel.AutoSize = true;
-            SubvolumeGainLabel.BackColor = Color.DarkGreen;
-            SubvolumeGainLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            SubvolumeGainLabel.ForeColor = Color.Yellow;
-            SubvolumeGainLabel.Location = new Point(145, 122);
+            SubvolumeGainLabel.BackColor = Color.Silver;
+            SubvolumeGainLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            SubvolumeGainLabel.ForeColor = Color.Black;
+            SubvolumeGainLabel.Location = new Point(145, 111);
             SubvolumeGainLabel.Name = "SubvolumeGainLabel";
-            SubvolumeGainLabel.Size = new Size(45, 10);
+            SubvolumeGainLabel.Size = new Size(45, 12);
             SubvolumeGainLabel.TabIndex = 0;
-            SubvolumeGainLabel.Text = "SUB VOL";
+            SubvolumeGainLabel.Text = "SHIFT";
+            SubvolumeGainLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // comPortComboBox
             // 
             comPortComboBox.BackColor = Color.DarkGreen;
             comPortComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             comPortComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            comPortComboBox.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            comPortComboBox.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
             comPortComboBox.ForeColor = Color.Yellow;
             comPortComboBox.ItemHeight = 16;
             comPortComboBox.Location = new Point(640, 189);
@@ -864,7 +866,7 @@ namespace DEVEL101
             ConnectToggleButton.BackColor = Color.DarkGreen;
             ConnectToggleButton.FlatAppearance.BorderColor = Color.White;
             ConnectToggleButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            ConnectToggleButton.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            ConnectToggleButton.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ConnectToggleButton.ForeColor = Color.Yellow;
             ConnectToggleButton.Location = new Point(640, 218);
             ConnectToggleButton.Name = "ConnectToggleButton";
@@ -878,7 +880,7 @@ namespace DEVEL101
             StepComboBox.BackColor = Color.DarkGreen;
             StepComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             StepComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            StepComboBox.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            StepComboBox.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
             StepComboBox.ForeColor = Color.Yellow;
             StepComboBox.ItemHeight = 16;
             StepComboBox.Location = new Point(640, 161);
@@ -1166,12 +1168,10 @@ namespace DEVEL101
             Controls.Add(textBox3);
             Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             ForeColor = Color.Yellow;
-            FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             ImeMode = System.Windows.Forms.ImeMode.Disable;
             Location = new Point(1, 1);
             Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             MaximizeBox = false;
-            MinimizeBox = true;
             Name = "MainForm";
             TransparencyKey = Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();

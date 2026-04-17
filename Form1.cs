@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 3.0 beta  (17 apr 26)
+// Version : 3.0 RC1  (17 apr 26)
 // Name    : DEVEL101 Yaesu FTDX101 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v2.12 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v 3.0 RC1 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -55,9 +55,13 @@ namespace DEVEL101
         private const string CMD_LEV_SUB_R = "SS14;";
         private const string CMD_NR_R = "NR0;";
         private const string CMD_NR_SUB_R = "NR1;";
-        private const string CMD_DNF_R = "BC0;";
-        private const string CMD_DNF_SUB_R = "BC1;";
-        private const string CMD_ID = "ID;";
+        private const string CMD_DNF_R     = "BC0;";
+        private const string CMD_DNF_SUB_R  = "BC1;";
+        private const string CMD_ID         = "ID;";
+        private const string CMD_SH_R       = "SH0;";
+        private const string CMD_SH_SUB_R   = "SH1;";
+        private const string CMD_IS_R       = "IS0;";
+        private const string CMD_IS_SUB_R   = "IS1;";
         #endregion
 
         // --- Serial port ---
@@ -92,8 +96,9 @@ namespace DEVEL101
         private string savedPstr = "";
         private string FColorB = "Cyan";
         private double levelShift = 0.0;
-        private bool nrOn = false;
-        private bool dnfOn = false;
+        private bool   nrOn      = false;
+        private bool   dnfOn     = false;
+        private char   currentMode = '2'; // default USB
         private int maxPower = 100;
         private string radioModel = "FTDX101D";
 
@@ -249,6 +254,7 @@ namespace DEVEL101
             {
                 try
                 {
+                    serialPort.DiscardInBuffer();
                     serialPort.Write(cmd);
                     Thread.Sleep(6);
                     return serialPort.ReadTo(";");
@@ -284,8 +290,10 @@ namespace DEVEL101
             string ipo = mainFocused ? CMD_IPO_R : CMD_IPO_SUB_R;
             string att = mainFocused ? CMD_ATT_R : CMD_ATT_SUB_R;
             string lev = mainFocused ? CMD_LEV_R : CMD_LEV_SUB_R;
-            string nr = mainFocused ? CMD_NR_R : CMD_NR_SUB_R;
+            string nr  = mainFocused ? CMD_NR_R  : CMD_NR_SUB_R;
             string dnf = mainFocused ? CMD_DNF_R : CMD_DNF_SUB_R;
+            string sh     = mainFocused ? CMD_SH_R     : CMD_SH_SUB_R;
+            string ishift = mainFocused ? CMD_IS_R     : CMD_IS_SUB_R;
 
             pollCmds = new[]
             {
@@ -298,7 +306,8 @@ namespace DEVEL101
                 CMD_FREQA_R, CMD_FREQB_R,
                 CMD_RFGAIN_R, CMD_VOL_R,   CMD_PWR_R,
                 CMD_FREQA_R, CMD_FREQB_R,
-                CMD_SUBRF_R, CMD_SUBVOL_R, CMD_TUNER_R,  CMD_VS_R
+                ishift,       CMD_TUNER_R,  sh,
+                CMD_VS_R
             };
             pollIndex = 0;
         }
@@ -340,29 +349,29 @@ namespace DEVEL101
         {
             pollTimer.Stop();
 
-            if (pollIndex == 0)
-            {
-                lock (serialLock)
-                {
-                    serialPort?.DiscardInBuffer();
-                    serialPort?.DiscardOutBuffer();
-                }
-            }
-
             string cmd = pollCmds[pollIndex];
             pollIndex = (pollIndex + 1) % pollCmds.Length;
 
-            string resp = await Task.Run(() => SendReceive(cmd));
-            ProcessResponse(resp);
-
-
-            pollTimer.Start();
+            try
+            {
+                string resp = await Task.Run(() => SendReceive(cmd));
+                ProcessResponse(resp);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Poll error [{cmd}]: {ex.Message}");
+            }
+            finally
+            {
+                pollTimer.Start();
+            }
         }
 
         private void ProcessResponse(string resp)
         {
             if (string.IsNullOrEmpty(resp)) return;
-
+            try
+            {
             if (resp.StartsWith("RM9") && resp.Length >= 6)
             {
                 decimal tempnum = Convert.ToDecimal(resp.Substring(3, 3));
@@ -416,11 +425,12 @@ namespace DEVEL101
             {
                 if ((resp[2] == '0') == mainFocused)
                 {
+                    currentMode = resp[3];
                     SetButtonActive(LSBB, resp[3] == '1');
                     SetButtonActive(USBB, resp[3] == '2');
-                    SetButtonActive(CWB, resp[3] == '3');
-                    SetButtonActive(FMB, resp[3] == '4');
-                    SetButtonActive(AMB, resp[3] == '5');
+                    SetButtonActive(CWB,  resp[3] == '3');
+                    SetButtonActive(FMB,  resp[3] == '4');
+                    SetButtonActive(AMB,  resp[3] == '5');
                     SetButtonActive(DIGB, resp[3] == 'C');
                 }
             }
@@ -468,6 +478,11 @@ namespace DEVEL101
                     SetButtonActive(DNFB, dnfOn);
                 }
             }
+            else if (resp.StartsWith("SH") && resp.Length >= 4)
+            {
+                if (int.TryParse(resp.Substring(resp.Length - 2), out int v))
+                    SafeUpdateSlider(SubrfGainTrackBar, textBox5, v, ShBwDisplay(v));
+            }
             else if (resp.StartsWith("FR") && resp.Length >= 4)
             {
                 rx1Active = resp == "FR00" || resp == "FR01";
@@ -491,16 +506,19 @@ namespace DEVEL101
                 if (int.TryParse(resp.Substring(2, 3), out int v))
                     SafeUpdateSlider(pwrControlTrackBar, textBox3, v, v.ToString("D3"));
             }
-            else if (resp.StartsWith("RG1") && resp.Length >= 6)
+            else if (resp.StartsWith("IS") && resp.Length >= 9)
             {
-                if (int.TryParse(resp.Substring(3, 3), out int v))
-                    SafeUpdateSlider(SubrfGainTrackBar, textBox5,
-                        SubrfGainTrackBar.Maximum - v, ToDisplay(SubrfGainTrackBar.Maximum - v));
-            }
-            else if (resp.StartsWith("AG1") && resp.Length >= 6)
-            {
-                if (int.TryParse(resp.Substring(3, 3), out int v))
-                    SafeUpdateSlider(SubvolumeGainTrackBar, textBox6, v, ToDisplay(v));
+                bool isMain = resp[2] == '0';
+                if (isMain == mainFocused)
+                {
+                    char sign = resp[4];
+                    if (int.TryParse(resp.Substring(5, 4), out int hz))
+                    {
+                        int actualHz = sign == '-' ? -hz : hz;
+                        int steps = actualHz / 20;
+                        SafeUpdateSlider(SubvolumeGainTrackBar, textBox6, steps, IsShiftDisplay(steps));
+                    }
+                }
             }
             else if (resp.StartsWith("FA") && resp.Length >= 4)
             {
@@ -537,12 +555,42 @@ namespace DEVEL101
             {
                 SetReceiverFocus(resp[2] == '0');
             }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ProcessResponse error [{resp}]: {ex.Message}");
+            }
         }
 
         #endregion
 
         // =================================================================
         #region UI Helpers
+
+        // SH bandwidth table: index = slider position, {SSB Hz, CW/DIG Hz}
+        private static readonly (int Ssb, int CwDig)[] ShTable =
+        {
+            (    0,    0), (  300,   50), (  400,  100), (  600,  150),
+            (  850,  200), ( 1100,  250), ( 1200,  300), ( 1500,  350),
+            ( 1650,  400), ( 1800,  450), ( 1950,  500), ( 2100,  600),
+            ( 2200,  800), ( 2300, 1200), ( 2400, 1400), ( 2500, 1700),
+            ( 2600, 2000), ( 2700, 2400), ( 2800, 3000), ( 2900, 3200),
+            ( 3000, 3500), ( 3200, 4000), ( 3500, 3500), ( 4000, 4000)
+        };
+
+        private static string IsShiftDisplay(int steps)
+        {
+            int hz = steps * 20;
+            return hz == 0 ? "0 Hz" : hz > 0 ? $"+{hz} Hz" : $"{hz} Hz";
+        }
+
+        private string ShBwDisplay(int pos)
+        {
+            if (pos < 1 || pos >= ShTable.Length) return "---";
+            bool cwDig = currentMode == '3' || currentMode == 'C';
+            int hz = cwDig ? ShTable[pos].CwDig : ShTable[pos].Ssb;
+            return $"{hz} Hz";
+        }
 
         private void StoreDesignLayout()
         {
@@ -775,16 +823,20 @@ namespace DEVEL101
         {
             if (isUpdatingFromRadio) return;
             int val = SubrfGainTrackBar.Value;
-            UpdateTextBox(textBox5, ToDisplay(val));
-            QueueSliderCommand(SubrfGainTrackBar, $"RG1{(SubrfGainTrackBar.Maximum - val):D3};");
+            int x = mainFocused ? 0 : 1;
+            UpdateTextBox(textBox5, ShBwDisplay(val));
+            QueueSliderCommand(SubrfGainTrackBar, $"SH{x}0{val:D2};");
         }
 
         private void SubvolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
             if (isUpdatingFromRadio) return;
-            int rawVal = SubvolumeGainTrackBar.Value;
-            UpdateTextBox(textBox6, ToDisplay(rawVal));
-            QueueSliderCommand(SubvolumeGainTrackBar, $"AG1{rawVal:D3};");
+            int steps = SubvolumeGainTrackBar.Value;
+            int hz = steps * 20;
+            int x = mainFocused ? 0 : 1;
+            char sign = hz >= 0 ? '+' : '-';
+            UpdateTextBox(textBox6, IsShiftDisplay(steps));
+            QueueSliderCommand(SubvolumeGainTrackBar, $"IS{x}0{sign}{Math.Abs(hz):D4};");
         }
 
         #endregion
@@ -907,6 +959,8 @@ namespace DEVEL101
         private void FreqS_box_Click(object sender, EventArgs e) { SendCommand("VS1;"); }
         private void SetReceiverFocus(bool focusMain)
         {
+            if (mainFocused == focusMain) return;
+
             // Save step for the VFO we're leaving
             string currentStep = StepComboBox.SelectedItem?.ToString() ?? "500 Hz";
             if (mainFocused) Properties.Settings.Default.StepMain = currentStep;
@@ -919,6 +973,21 @@ namespace DEVEL101
             FreqS_box.ForeColor = focusMain ? Color.Gold : Color.White;
             FreqM_box.Invalidate();
             FreqS_box.Invalidate();
+
+            // Main RF / VOLUME slider and label colors follow receiver focus
+            Color sBack  = focusMain ? Color.Silver   : Color.DarkBlue;
+            Color sThumb = focusMain ? Color.DarkBlue : Color.Silver;
+            rfGainTrackBar.BackColor      = sBack;  rfGainTrackBar.ForeColor      = sThumb;  rfGainTrackBar.TickColor      = sThumb;
+            volumeGainTrackBar.BackColor  = sBack;  volumeGainTrackBar.ForeColor  = sThumb;  volumeGainTrackBar.TickColor  = sThumb;
+            Color sLabel = focusMain ? Color.Black : Color.White;
+            rfGainLabel.BackColor         = sBack;  rfGainLabel.ForeColor         = sLabel;
+            volumeGainLabel.BackColor     = sBack;  volumeGainLabel.ForeColor     = sLabel;
+
+            // WIDTH / SHIFT sliders and labels follow the same focus colors
+            SubrfGainTrackBar.BackColor     = sBack;  SubrfGainTrackBar.ForeColor     = sThumb;  SubrfGainTrackBar.TickColor     = sThumb;
+            SubvolumeGainTrackBar.BackColor = sBack;  SubvolumeGainTrackBar.ForeColor = sThumb;  SubvolumeGainTrackBar.TickColor = sThumb;
+            SubrfGainLabel.BackColor        = sBack;  SubrfGainLabel.ForeColor        = sLabel;
+            SubvolumeGainLabel.BackColor    = sBack;  SubvolumeGainLabel.ForeColor    = sLabel;
             BANDB.Text = GetBandName(focusMain ? mainFreqHz : subFreqHz);
             RebuildPollCommands();
 
@@ -968,15 +1037,12 @@ namespace DEVEL101
                 savedMainVol = volumeGainTrackBar.Value;
                 savedSubVol = SubvolumeGainTrackBar.Value;
                 SendCommand("AG0000;");
-                SendCommand("AG1000;");
                 isBothMuted = true;
             }
             else
             {
                 SendCommand($"AG0{savedMainVol:D3};");
-                SendCommand($"AG1{savedSubVol:D3};");
                 SafeUpdateSlider(volumeGainTrackBar, textBox2, savedMainVol, savedMainVol.ToString("D3"));
-                SafeUpdateSlider(SubvolumeGainTrackBar, textBox6, savedSubVol, savedSubVol.ToString("D3"));
                 isBothMuted = false;
             }
         }

@@ -54,10 +54,10 @@ namespace DEVEL101
             volumeGainTrackBar = new CustomTrackBar();
             FreqM_box = new System.Windows.Forms.Button();
             FreqS_box = new System.Windows.Forms.Button();
-            textBox1 = new System.Windows.Forms.TextBox();
-            textBox2 = new System.Windows.Forms.TextBox();
+            RFgain_box = new System.Windows.Forms.TextBox();
+            VolumeGain_box = new System.Windows.Forms.TextBox();
             pwrControlTrackBar = new CustomTrackBar();
-            textBox3 = new System.Windows.Forms.TextBox();
+            Power_box = new System.Windows.Forms.TextBox();
             AMB = new System.Windows.Forms.Button();
             FMB = new System.Windows.Forms.Button();
             DIGB = new System.Windows.Forms.Button();
@@ -67,16 +67,16 @@ namespace DEVEL101
             IntTune = new System.Windows.Forms.Button();
             ItuneOn = new System.Windows.Forms.Button();
             ItuneOff = new System.Windows.Forms.Button();
-            SubrfGainTrackBar = new CustomTrackBar();
-            SubvolumeGainTrackBar = new CustomTrackBar();
-            textBox5 = new System.Windows.Forms.TextBox();
-            textBox6 = new System.Windows.Forms.TextBox();
+            WidthTrackBar = new CustomTrackBar();
+            ShiftTrackBar = new CustomTrackBar();
+            Width_box = new System.Windows.Forms.TextBox();
+            Shift_box = new System.Windows.Forms.TextBox();
             SWAP = new System.Windows.Forms.Button();
             rfGainLabel = new System.Windows.Forms.Label();
             volumeGainLabel = new System.Windows.Forms.Label();
             pwrControlLabel = new System.Windows.Forms.Label();
-            SubrfGainLabel = new System.Windows.Forms.Label();
-            SubvolumeGainLabel = new System.Windows.Forms.Label();
+            WidthLabel = new System.Windows.Forms.Label();
+            ShiftLabel = new System.Windows.Forms.Label();
             comPortComboBox = new System.Windows.Forms.ComboBox();
             ConnectToggleButton = new System.Windows.Forms.Button();
             StepComboBox = new System.Windows.Forms.ComboBox();
@@ -96,8 +96,8 @@ namespace DEVEL101
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)SubrfGainTrackBar).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)SubvolumeGainTrackBar).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)WidthTrackBar).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)ShiftTrackBar).BeginInit();
             SuspendLayout();
             // 
             // TEMP_box
@@ -340,7 +340,6 @@ namespace DEVEL101
             RX1B.Text = "MAIN\r\nRX";
             RX1B.UseVisualStyleBackColor = false;
             RX1B.MouseClick += RX1B_click;
-            RX1B.MouseDown += RX1B_MouseDown;
             // 
             // RX2B
             // 
@@ -357,7 +356,6 @@ namespace DEVEL101
             RX2B.Text = "SUB\r\nRX";
             RX2B.UseVisualStyleBackColor = false;
             RX2B.MouseClick += RX2B_click;
-            RX2B.MouseDown += RX2B_MouseDown;
             // 
             // SSB1
             // 
@@ -489,40 +487,40 @@ namespace DEVEL101
             FreqS_box.UseVisualStyleBackColor = false;
             FreqS_box.Click += FreqS_box_Click;
             // 
-            // textBox1
+            // RFgain_box
             // 
-            textBox1.BackColor = Color.Black;
-            textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox1.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            textBox1.ForeColor = Color.Gold;
-            textBox1.Location = new Point(1, 227);
-            textBox1.Margin = new System.Windows.Forms.Padding(0);
-            textBox1.Multiline = true;
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(45, 16);
-            textBox1.TabIndex = 46;
-            textBox1.TabStop = false;
-            textBox1.Text = "000";
-            textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            textBox1.WordWrap = false;
+            RFgain_box.BackColor = Color.Black;
+            RFgain_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            RFgain_box.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            RFgain_box.ForeColor = Color.Gold;
+            RFgain_box.Location = new Point(1, 227);
+            RFgain_box.Margin = new System.Windows.Forms.Padding(0);
+            RFgain_box.Multiline = true;
+            RFgain_box.Name = "RFgain_box";
+            RFgain_box.Size = new Size(45, 16);
+            RFgain_box.TabIndex = 46;
+            RFgain_box.TabStop = false;
+            RFgain_box.Text = "000";
+            RFgain_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            RFgain_box.WordWrap = false;
             // 
-            // textBox2
+            // VolumeGain_box
             // 
-            textBox2.BackColor = Color.Black;
-            textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            textBox2.ForeColor = Color.Gold;
-            textBox2.Location = new Point(49, 227);
-            textBox2.Margin = new System.Windows.Forms.Padding(0);
-            textBox2.Multiline = true;
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(46, 18);
-            textBox2.TabIndex = 47;
-            textBox2.TabStop = false;
-            textBox2.Text = "000";
-            textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            textBox2.WordWrap = false;
-            textBox2.TextChanged += textBox2_TextChanged;
+            VolumeGain_box.BackColor = Color.Black;
+            VolumeGain_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            VolumeGain_box.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            VolumeGain_box.ForeColor = Color.Gold;
+            VolumeGain_box.Location = new Point(49, 227);
+            VolumeGain_box.Margin = new System.Windows.Forms.Padding(0);
+            VolumeGain_box.Multiline = true;
+            VolumeGain_box.Name = "VolumeGain_box";
+            VolumeGain_box.Size = new Size(46, 18);
+            VolumeGain_box.TabIndex = 47;
+            VolumeGain_box.TabStop = false;
+            VolumeGain_box.Text = "000";
+            VolumeGain_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            VolumeGain_box.WordWrap = false;
+            VolumeGain_box.TextChanged += VolumeGain_box_TextChanged;
             // 
             // pwrControlTrackBar
             // 
@@ -542,22 +540,22 @@ namespace DEVEL101
             pwrControlTrackBar.Value = 50;
             pwrControlTrackBar.Click += pwrControlTrackBar_Click;
             // 
-            // textBox3
+            // Power_box
             // 
-            textBox3.BackColor = Color.Black;
-            textBox3.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox3.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            textBox3.ForeColor = Color.Gold;
-            textBox3.Location = new Point(660, 134);
-            textBox3.Margin = new System.Windows.Forms.Padding(0);
-            textBox3.Multiline = true;
-            textBox3.Name = "textBox3";
-            textBox3.Size = new Size(45, 16);
-            textBox3.TabIndex = 45;
-            textBox3.TabStop = false;
-            textBox3.Text = "000";
-            textBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            textBox3.WordWrap = false;
+            Power_box.BackColor = Color.Black;
+            Power_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            Power_box.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            Power_box.ForeColor = Color.Gold;
+            Power_box.Location = new Point(660, 134);
+            Power_box.Margin = new System.Windows.Forms.Padding(0);
+            Power_box.Multiline = true;
+            Power_box.Name = "Power_box";
+            Power_box.Size = new Size(45, 16);
+            Power_box.TabIndex = 45;
+            Power_box.TabStop = false;
+            Power_box.Text = "000";
+            Power_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            Power_box.WordWrap = false;
             // 
             // AMB
             // 
@@ -703,73 +701,73 @@ namespace DEVEL101
             ItuneOff.UseVisualStyleBackColor = false;
             ItuneOff.Click += ItuneOff_Click;
             // 
-            // SubrfGainTrackBar
+            // WidthTrackBar
             // 
-            SubrfGainTrackBar.BackColor = Color.Silver;
-            SubrfGainTrackBar.ChannelColor = Color.Gray;
-            SubrfGainTrackBar.ForeColor = Color.DarkBlue;
-            SubrfGainTrackBar.Location = new Point(98, 121);
-            SubrfGainTrackBar.Maximum = 23;
-            SubrfGainTrackBar.Minimum = 1;
-            SubrfGainTrackBar.Name = "SubrfGainTrackBar";
-            SubrfGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            SubrfGainTrackBar.Size = new Size(45, 105);
-            SubrfGainTrackBar.TabIndex = 59;
-            SubrfGainTrackBar.TickColor = Color.DarkBlue;
-            SubrfGainTrackBar.TickFrequency = 1;
-            SubrfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
-            SubrfGainTrackBar.Value = 1;
+            WidthTrackBar.BackColor = Color.Silver;
+            WidthTrackBar.ChannelColor = Color.Gray;
+            WidthTrackBar.ForeColor = Color.DarkBlue;
+            WidthTrackBar.Location = new Point(98, 121);
+            WidthTrackBar.Maximum = 23;
+            WidthTrackBar.Minimum = 1;
+            WidthTrackBar.Name = "WidthTrackBar";
+            WidthTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            WidthTrackBar.Size = new Size(45, 105);
+            WidthTrackBar.TabIndex = 59;
+            WidthTrackBar.TickColor = Color.DarkBlue;
+            WidthTrackBar.TickFrequency = 1;
+            WidthTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            WidthTrackBar.Value = 1;
             // 
-            // SubvolumeGainTrackBar
+            // ShiftTrackBar
             // 
-            SubvolumeGainTrackBar.BackColor = Color.Silver;
-            SubvolumeGainTrackBar.ChannelColor = Color.Gray;
-            SubvolumeGainTrackBar.ForeColor = Color.DarkBlue;
-            SubvolumeGainTrackBar.Location = new Point(145, 121);
-            SubvolumeGainTrackBar.Minimum = -60;
-            SubvolumeGainTrackBar.Maximum = 60;
-            SubvolumeGainTrackBar.Name = "SubvolumeGainTrackBar";
-            SubvolumeGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            SubvolumeGainTrackBar.Size = new Size(45, 105);
-            SubvolumeGainTrackBar.TabIndex = 60;
-            SubvolumeGainTrackBar.TickColor = Color.DarkBlue;
-            SubvolumeGainTrackBar.TickFrequency = 10;
-            SubvolumeGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
-            SubvolumeGainTrackBar.Value = 0;
+            ShiftTrackBar.BackColor = Color.Silver;
+            ShiftTrackBar.ChannelColor = Color.Gray;
+            ShiftTrackBar.ForeColor = Color.DarkBlue;
+            ShiftTrackBar.Location = new Point(145, 121);
+            ShiftTrackBar.Minimum = -60;
+            ShiftTrackBar.Maximum = 60;
+            ShiftTrackBar.Name = "ShiftTrackBar";
+            ShiftTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            ShiftTrackBar.Size = new Size(45, 105);
+            ShiftTrackBar.TabIndex = 60;
+            ShiftTrackBar.TickColor = Color.DarkBlue;
+            ShiftTrackBar.TickFrequency = 10;
+            ShiftTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            ShiftTrackBar.Value = 0;
             // 
-            // textBox5
+            // Width_box
             // 
-            textBox5.BackColor = Color.Black;
-            textBox5.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            textBox5.ForeColor = Color.Gold;
-            textBox5.Location = new Point(98, 227);
-            textBox5.Margin = new System.Windows.Forms.Padding(0);
-            textBox5.Multiline = true;
-            textBox5.Name = "textBox5";
-            textBox5.Size = new Size(45, 16);
-            textBox5.TabIndex = 61;
-            textBox5.TabStop = false;
-            textBox5.Text = "000";
-            textBox5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            textBox5.WordWrap = false;
+            Width_box.BackColor = Color.Black;
+            Width_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            Width_box.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            Width_box.ForeColor = Color.Gold;
+            Width_box.Location = new Point(98, 227);
+            Width_box.Margin = new System.Windows.Forms.Padding(0);
+            Width_box.Multiline = true;
+            Width_box.Name = "Width_box";
+            Width_box.Size = new Size(45, 16);
+            Width_box.TabIndex = 61;
+            Width_box.TabStop = false;
+            Width_box.Text = "000";
+            Width_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            Width_box.WordWrap = false;
             // 
-            // textBox6
+            // Shift_box
             // 
-            textBox6.BackColor = Color.Black;
-            textBox6.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox6.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            textBox6.ForeColor = Color.Gold;
-            textBox6.Location = new Point(145, 227);
-            textBox6.Margin = new System.Windows.Forms.Padding(0);
-            textBox6.Multiline = true;
-            textBox6.Name = "textBox6";
-            textBox6.Size = new Size(45, 18);
-            textBox6.TabIndex = 62;
-            textBox6.TabStop = false;
-            textBox6.Text = "000";
-            textBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            textBox6.WordWrap = false;
+            Shift_box.BackColor = Color.Black;
+            Shift_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            Shift_box.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            Shift_box.ForeColor = Color.Gold;
+            Shift_box.Location = new Point(145, 227);
+            Shift_box.Margin = new System.Windows.Forms.Padding(0);
+            Shift_box.Multiline = true;
+            Shift_box.Name = "Shift_box";
+            Shift_box.Size = new Size(45, 18);
+            Shift_box.TabIndex = 62;
+            Shift_box.TabStop = false;
+            Shift_box.Text = "000";
+            Shift_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            Shift_box.WordWrap = false;
             // 
             // SWAP
             // 
@@ -824,29 +822,29 @@ namespace DEVEL101
             pwrControlLabel.Text = "POWER";
             pwrControlLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // SubrfGainLabel
+            // WidthLabel
             // 
-            SubrfGainLabel.BackColor = Color.Silver;
-            SubrfGainLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            SubrfGainLabel.ForeColor = Color.Black;
-            SubrfGainLabel.Location = new Point(98, 111);
-            SubrfGainLabel.Name = "SubrfGainLabel";
-            SubrfGainLabel.Size = new Size(45, 12);
-            SubrfGainLabel.TabIndex = 0;
-            SubrfGainLabel.Text = "WIDTH";
-            SubrfGainLabel.TextAlign = ContentAlignment.MiddleCenter;
+            WidthLabel.BackColor = Color.Silver;
+            WidthLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            WidthLabel.ForeColor = Color.Black;
+            WidthLabel.Location = new Point(98, 111);
+            WidthLabel.Name = "WidthLabel";
+            WidthLabel.Size = new Size(45, 12);
+            WidthLabel.TabIndex = 0;
+            WidthLabel.Text = "WIDTH";
+            WidthLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // SubvolumeGainLabel
+            // ShiftLabel
             // 
-            SubvolumeGainLabel.BackColor = Color.Silver;
-            SubvolumeGainLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            SubvolumeGainLabel.ForeColor = Color.Black;
-            SubvolumeGainLabel.Location = new Point(145, 111);
-            SubvolumeGainLabel.Name = "SubvolumeGainLabel";
-            SubvolumeGainLabel.Size = new Size(45, 12);
-            SubvolumeGainLabel.TabIndex = 0;
-            SubvolumeGainLabel.Text = "SHIFT";
-            SubvolumeGainLabel.TextAlign = ContentAlignment.MiddleCenter;
+            ShiftLabel.BackColor = Color.Silver;
+            ShiftLabel.Font = new Font("Arial", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            ShiftLabel.ForeColor = Color.Black;
+            ShiftLabel.Location = new Point(145, 111);
+            ShiftLabel.Name = "ShiftLabel";
+            ShiftLabel.Size = new Size(45, 12);
+            ShiftLabel.TabIndex = 0;
+            ShiftLabel.Text = "SHIFT";
+            ShiftLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // comPortComboBox
             // 
@@ -1122,13 +1120,13 @@ namespace DEVEL101
             Controls.Add(rfGainLabel);
             Controls.Add(volumeGainLabel);
             Controls.Add(pwrControlLabel);
-            Controls.Add(SubrfGainLabel);
-            Controls.Add(SubvolumeGainLabel);
+            Controls.Add(WidthLabel);
+            Controls.Add(ShiftLabel);
             Controls.Add(SWAP);
-            Controls.Add(textBox6);
-            Controls.Add(textBox5);
-            Controls.Add(SubvolumeGainTrackBar);
-            Controls.Add(SubrfGainTrackBar);
+            Controls.Add(Shift_box);
+            Controls.Add(Width_box);
+            Controls.Add(ShiftTrackBar);
+            Controls.Add(WidthTrackBar);
             Controls.Add(ItuneOff);
             Controls.Add(ItuneOn);
             Controls.Add(IntTune);
@@ -1138,8 +1136,8 @@ namespace DEVEL101
             Controls.Add(DIGB);
             Controls.Add(FMB);
             Controls.Add(AMB);
-            Controls.Add(textBox2);
-            Controls.Add(textBox1);
+            Controls.Add(VolumeGain_box);
+            Controls.Add(RFgain_box);
             Controls.Add(FreqS_box);
             Controls.Add(FreqM_box);
             Controls.Add(volumeGainTrackBar);
@@ -1165,7 +1163,7 @@ namespace DEVEL101
             Controls.Add(ExtTuneButton);
             Controls.Add(TEMP_box);
             Controls.Add(pwrControlTrackBar);
-            Controls.Add(textBox3);
+            Controls.Add(Power_box);
             Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             ForeColor = Color.Yellow;
             ImeMode = System.Windows.Forms.ImeMode.Disable;
@@ -1177,8 +1175,8 @@ namespace DEVEL101
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).EndInit();
-            ((System.ComponentModel.ISupportInitialize)SubrfGainTrackBar).EndInit();
-            ((System.ComponentModel.ISupportInitialize)SubvolumeGainTrackBar).EndInit();
+            ((System.ComponentModel.ISupportInitialize)WidthTrackBar).EndInit();
+            ((System.ComponentModel.ISupportInitialize)ShiftTrackBar).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1209,9 +1207,9 @@ namespace DEVEL101
         private CustomTrackBar pwrControlTrackBar;
         private System.Windows.Forms.Button FreqM_box;
         private System.Windows.Forms.Button FreqS_box;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox RFgain_box;
+        private System.Windows.Forms.TextBox VolumeGain_box;
+        private System.Windows.Forms.TextBox Power_box;
         private System.Windows.Forms.Button AMB;
         private System.Windows.Forms.Button FMB;
         private System.Windows.Forms.Button DIGB;
@@ -1221,16 +1219,16 @@ namespace DEVEL101
         private System.Windows.Forms.Button IntTune;
         private System.Windows.Forms.Button ItuneOn;
         private System.Windows.Forms.Button ItuneOff;
-        private CustomTrackBar SubrfGainTrackBar;
-        private CustomTrackBar SubvolumeGainTrackBar;
-        private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox6;
+        private CustomTrackBar WidthTrackBar;
+        private CustomTrackBar ShiftTrackBar;
+        private System.Windows.Forms.TextBox Width_box;
+        private System.Windows.Forms.TextBox Shift_box;
         private System.Windows.Forms.Button SWAP;
         private System.Windows.Forms.Label rfGainLabel;
         private System.Windows.Forms.Label volumeGainLabel;
         private System.Windows.Forms.Label pwrControlLabel;
-        private System.Windows.Forms.Label SubrfGainLabel;
-        private System.Windows.Forms.Label SubvolumeGainLabel;
+        private System.Windows.Forms.Label WidthLabel;
+        private System.Windows.Forms.Label ShiftLabel;
         private System.Windows.Forms.ComboBox comPortComboBox;
         private System.Windows.Forms.Button ConnectToggleButton;
         private System.Windows.Forms.ComboBox StepComboBox;

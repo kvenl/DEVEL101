@@ -4,6 +4,7 @@
 - Respond in English and ignore Dutch for now.
 - My name is Kees.
 - All code suggestions should indicate the document where the code should be applied.
+- Never commit Git changes without Kees's explicit consent/request.
 
 ## Git Procedures
 - To discard all uncommitted changes and revert to the last commit in Visual Studio: 
@@ -16,4 +17,3 @@
 
 ## Application Controls
 - Kees has restyled the application and added/changed many buttons and textboxes. Future requests will reference these controls by their names, which may sometimes be changed. Changes should be made based on these references.
-- ;

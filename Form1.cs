@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 3.0 RC1  (17 apr 26)
+// Version : 3.0 RC1  (18 apr 26)
 // Name    : DEVEL101 Yaesu FTDX101 
 
 
@@ -39,8 +39,7 @@ namespace DEVEL101
         private const string CMD_RFGAIN_R = "RG0;";
         private const string CMD_VOL_R = "AG0;";
         private const string CMD_PWR_R = "PC;";
-        private const string CMD_SUBRF_R = "RG1;";
-        private const string CMD_SUBVOL_R = "AG1;";
+        // CMD_SUBRF_R and CMD_SUBVOL_R removed (sliders repurposed to WIDTH/SHIFT)
         private const string CMD_FREQA_R = "FA;";
         private const string CMD_FREQB_R = "FB;";
         private const string CMD_TUNER_R = "AC;";
@@ -68,7 +67,7 @@ namespace DEVEL101
         private SerialPort serialPort;
         private readonly object serialLock = new object();
 
-        // --- Poll timer (one command per tick â€” never a background thread timer) ---
+        // --- Poll timer (one command per tick — never a background thread timer) ---
         private System.Windows.Forms.Timer pollTimer;
         private int pollIndex = 0;
 
@@ -80,12 +79,10 @@ namespace DEVEL101
         // --- State ---
         private bool rfSqlOn = false;
         private bool iTuneOn = false;
-        private bool isBothMuted = false;
-        private int savedMainVol = 0;
-        private int savedSubVol = 0;
         private bool rx1Active = false;
         private bool rx2Active = false;
         private bool mainFocused = true;
+        private bool _focusInitialized = false;
         private long mainFreqHz = 0;
         private long subFreqHz = 0;
         private bool suppressStepSave = false;
@@ -151,7 +148,7 @@ namespace DEVEL101
             SetButtonActive(ExtTuneButton, false);
             ExtTuneButton.Enabled = false;
 
-            // Wire all events â€” not in designer
+            // Wire all events — not in designer
             InitializeTrackBarEvents();
 
             // Build initial poll command list (MAIN focused by default)
@@ -246,7 +243,7 @@ namespace DEVEL101
         // =================================================================
         #region Command Sending
 
-        /// <summary>Atomic send + read under lock â€” use for all poll and interactive commands.</summary>
+        /// <summary>Atomic send + read under lock — use for all poll and interactive commands.</summary>
         private string SendReceive(string cmd)
         {
             if (serialPort == null || !serialPort.IsOpen) return "";
@@ -263,7 +260,7 @@ namespace DEVEL101
             }
         }
 
-        /// <summary>Send only â€” no response expected (e.g. SET commands).</summary>
+        /// <summary>Send only — no response expected (e.g. SET commands).</summary>
         private void SendCommand(string cmd)
         {
             if (serialPort == null || !serialPort.IsOpen) return;
@@ -344,7 +341,7 @@ namespace DEVEL101
             }
         }
 
-        /// <summary>Fires on the UI thread â€” sends ONE command per tick, advances pollIndex.</summary>
+        /// <summary>Fires on the UI thread — sends ONE command per tick, advances pollIndex.</summary>
         private async void PollTimer_Tick(object sender, EventArgs e)
         {
             pollTimer.Stop();
@@ -378,7 +375,7 @@ namespace DEVEL101
                 decimal TempD = decimal.Floor((tempnum / 2.3M) - 6);
                 FColorB = TempD > 40 ? "Red" : TempD > 33 ? "Orange" : "Cyan";
                 if (TempD > 40) Console.Beep(3000, 1000);
-                UpdateTextBox(TEMP_box, $"{TempD:00}Â°C", Color.FromName(FColorB));
+                UpdateTextBox(TEMP_box, $"{TempD:00}°C", Color.FromName(FColorB));
             }
             else if (resp.StartsWith("EX030107") && resp.Length >= 9)
             {
@@ -481,7 +478,7 @@ namespace DEVEL101
             else if (resp.StartsWith("SH") && resp.Length >= 4)
             {
                 if (int.TryParse(resp.Substring(resp.Length - 2), out int v))
-                    SafeUpdateSlider(SubrfGainTrackBar, textBox5, v, ShBwDisplay(v));
+                    SafeUpdateSlider(WidthTrackBar, Width_box, v, ShBwDisplay(v));
             }
             else if (resp.StartsWith("FR") && resp.Length >= 4)
             {
@@ -493,18 +490,18 @@ namespace DEVEL101
             else if (resp.StartsWith("RG0") && resp.Length >= 6)
             {
                 if (int.TryParse(resp.Substring(3, 3), out int v))
-                    SafeUpdateSlider(rfGainTrackBar, textBox1,
+                    SafeUpdateSlider(rfGainTrackBar, RFgain_box,
                         rfGainTrackBar.Maximum - v, ToDisplay(rfGainTrackBar.Maximum - v));
             }
             else if (resp.StartsWith("AG0") && resp.Length >= 6)
             {
                 if (int.TryParse(resp.Substring(3, 3), out int v))
-                    SafeUpdateSlider(volumeGainTrackBar, textBox2, v, ToDisplay(v));
+                    SafeUpdateSlider(volumeGainTrackBar, VolumeGain_box, v, ToDisplay(v));
             }
             else if (resp.StartsWith("PC") && resp.Length >= 5)
             {
                 if (int.TryParse(resp.Substring(2, 3), out int v))
-                    SafeUpdateSlider(pwrControlTrackBar, textBox3, v, v.ToString("D3"));
+                    SafeUpdateSlider(pwrControlTrackBar, Power_box, v, v.ToString("D3"));
             }
             else if (resp.StartsWith("IS") && resp.Length >= 9)
             {
@@ -516,7 +513,7 @@ namespace DEVEL101
                     {
                         int actualHz = sign == '-' ? -hz : hz;
                         int steps = actualHz / 20;
-                        SafeUpdateSlider(SubvolumeGainTrackBar, textBox6, steps, IsShiftDisplay(steps));
+                        SafeUpdateSlider(ShiftTrackBar, Shift_box, steps, IsShiftDisplay(steps));
                     }
                 }
             }
@@ -581,11 +578,13 @@ namespace DEVEL101
         private static string IsShiftDisplay(int steps)
         {
             int hz = steps * 20;
-            return hz == 0 ? "0 Hz" : hz > 0 ? $"+{hz} Hz" : $"{hz} Hz";
+            return hz == 0 ? "0" : hz > 0 ? $"+{hz}" : $"{hz}";
         }
 
         private string ShBwDisplay(int pos)
         {
+            if (currentMode == '5') return "9000 Hz";   // AM fixed
+            if (currentMode == '4') return "16000 Hz";  // FM fixed
             if (pos < 1 || pos >= ShTable.Length) return "---";
             bool cwDig = currentMode == '3' || currentMode == 'C';
             int hz = cwDig ? ShTable[pos].CwDig : ShTable[pos].Ssb;
@@ -680,14 +679,14 @@ namespace DEVEL101
 
         private void SetButtonActive(Button btn, bool active)
         {
-            Color inactiveColor = btn == RX1B ? Color.Silver
-                                : btn == RX2B ? Color.DarkBlue
-                                : Color.DarkGreen;
-            Color inactiveFore = btn == RX1B ? Color.DarkBlue
-                                : btn == RX2B ? Color.Silver
-                                : Color.Yellow;
-            Color target = active ? Color.DarkRed : inactiveColor;
-            Color targetFore = active ? Color.Yellow : inactiveFore;
+            Color activeColor = btn == RX1B ? Color.Silver
+                              : btn == RX2B ? Color.DarkBlue
+                              : Color.DarkRed;
+            Color activeFore  = btn == RX1B ? Color.DarkBlue
+                              : btn == RX2B ? Color.Silver
+                              : Color.Yellow;
+            Color target     = active ? activeColor  : Color.DarkGreen;
+            Color targetFore = active ? activeFore   : Color.Yellow;
             if (btn.BackColor == target) return;
             btn.BackColor = target;
             btn.ForeColor = targetFore;
@@ -699,7 +698,7 @@ namespace DEVEL101
             if (foreColor.HasValue && tb.ForeColor != foreColor.Value) tb.ForeColor = foreColor.Value;
         }
 
-        /// <summary>Update a slider + display textbox from the radio â€” guards against feedback loops.</summary>
+        /// <summary>Update a slider + display textbox from the radio — guards against feedback loops.</summary>
         private void SafeUpdateSlider(CustomTrackBar tb, TextBox display, int value, string displayStr)
         {
             int clamped = Math.Clamp(value, tb.Minimum, tb.Maximum);
@@ -715,7 +714,7 @@ namespace DEVEL101
         #endregion
 
         // =================================================================
-        #region Event Wiring â€” InitializeTrackBarEvents
+        #region Event Wiring — InitializeTrackBarEvents
 
         private void InitializeTrackBarEvents()
         {
@@ -723,8 +722,10 @@ namespace DEVEL101
             rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
             volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
             pwrControlTrackBar.ValueChanged += PwrControlTrackBar_ValueChanged;
-            SubrfGainTrackBar.ValueChanged += SubrfGainTrackBar_ValueChanged;
-            SubvolumeGainTrackBar.ValueChanged += SubvolumeGainTrackBar_ValueChanged;
+            WidthTrackBar.ValueChanged += WidthTrackBar_ValueChanged;
+            ShiftTrackBar.ValueChanged += ShiftTrackBar_ValueChanged;
+            WidthTrackBar.MouseClick += WidthTrackBar_MouseClick;
+            ShiftTrackBar.MouseClick += ShiftTrackBar_MouseClick;
 
             // Frequency buttons (custom paint for reliable rendering)
             FreqM_box.Paint += FreqButton_Paint;
@@ -800,7 +801,7 @@ namespace DEVEL101
         {
             if (isUpdatingFromRadio) return;
             int val = rfGainTrackBar.Value;
-            UpdateTextBox(textBox1, ToDisplay(val));
+            UpdateTextBox(RFgain_box, ToDisplay(val));
             QueueSliderCommand(rfGainTrackBar, $"RG0{(rfGainTrackBar.Maximum - val):D3};");
         }
 
@@ -815,28 +816,44 @@ namespace DEVEL101
         {
             if (isUpdatingFromRadio) return;
             string val = pwrControlTrackBar.Value.ToString("D3");
-            UpdateTextBox(textBox3, val);
+            UpdateTextBox(Power_box, val);
             QueueSliderCommand(pwrControlTrackBar, $"PC{val};");
         }
 
-        private void SubrfGainTrackBar_ValueChanged(object sender, EventArgs e)
+        private void WidthTrackBar_ValueChanged(object sender, EventArgs e)
         {
             if (isUpdatingFromRadio) return;
-            int val = SubrfGainTrackBar.Value;
+            int val = WidthTrackBar.Value;
             int x = mainFocused ? 0 : 1;
-            UpdateTextBox(textBox5, ShBwDisplay(val));
-            QueueSliderCommand(SubrfGainTrackBar, $"SH{x}0{val:D2};");
+            UpdateTextBox(Width_box, ShBwDisplay(val));
+            QueueSliderCommand(WidthTrackBar, $"SH{x}0{val:D2};");
         }
 
-        private void SubvolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
+        private void ShiftTrackBar_ValueChanged(object sender, EventArgs e)
         {
             if (isUpdatingFromRadio) return;
-            int steps = SubvolumeGainTrackBar.Value;
+            int steps = ShiftTrackBar.Value;
             int hz = steps * 20;
             int x = mainFocused ? 0 : 1;
             char sign = hz >= 0 ? '+' : '-';
-            UpdateTextBox(textBox6, IsShiftDisplay(steps));
-            QueueSliderCommand(SubvolumeGainTrackBar, $"IS{x}0{sign}{Math.Abs(hz):D4};");
+            UpdateTextBox(Shift_box, IsShiftDisplay(steps));
+            QueueSliderCommand(ShiftTrackBar, $"IS{x}0{sign}{Math.Abs(hz):D4};");
+        }
+
+        private void WidthTrackBar_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            int x = mainFocused ? 0 : 1;
+            bool cwDig = currentMode == '3' || currentMode == 'C';
+            string pos = cwDig ? "11" : "20"; // CW default 600 Hz (pos 11), SSB default 3000 Hz (pos 20)
+            SendCommand($"SH{x}0{pos};");
+        }
+
+        private void ShiftTrackBar_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            int x = mainFocused ? 0 : 1;
+            SendCommand($"IS{x}0+0000;");
         }
 
         #endregion
@@ -959,7 +976,8 @@ namespace DEVEL101
         private void FreqS_box_Click(object sender, EventArgs e) { SendCommand("VS1;"); }
         private void SetReceiverFocus(bool focusMain)
         {
-            if (mainFocused == focusMain) return;
+            if (_focusInitialized && mainFocused == focusMain) return;
+            _focusInitialized = true;
 
             // Save step for the VFO we're leaving
             string currentStep = StepComboBox.SelectedItem?.ToString() ?? "500 Hz";
@@ -984,10 +1002,10 @@ namespace DEVEL101
             volumeGainLabel.BackColor     = sBack;  volumeGainLabel.ForeColor     = sLabel;
 
             // WIDTH / SHIFT sliders and labels follow the same focus colors
-            SubrfGainTrackBar.BackColor     = sBack;  SubrfGainTrackBar.ForeColor     = sThumb;  SubrfGainTrackBar.TickColor     = sThumb;
-            SubvolumeGainTrackBar.BackColor = sBack;  SubvolumeGainTrackBar.ForeColor = sThumb;  SubvolumeGainTrackBar.TickColor = sThumb;
-            SubrfGainLabel.BackColor        = sBack;  SubrfGainLabel.ForeColor        = sLabel;
-            SubvolumeGainLabel.BackColor    = sBack;  SubvolumeGainLabel.ForeColor    = sLabel;
+            WidthTrackBar.BackColor     = sBack;  WidthTrackBar.ForeColor     = sThumb;  WidthTrackBar.TickColor     = sThumb;
+            ShiftTrackBar.BackColor = sBack;  ShiftTrackBar.ForeColor = sThumb;  ShiftTrackBar.TickColor = sThumb;
+            WidthLabel.BackColor        = sBack;  WidthLabel.ForeColor        = sLabel;
+            ShiftLabel.BackColor    = sBack;  ShiftLabel.ForeColor    = sLabel;
             BANDB.Text = GetBandName(focusMain ? mainFreqHz : subFreqHz);
             RebuildPollCommands();
 
@@ -1021,30 +1039,6 @@ namespace DEVEL101
                 (false, true) => "FR10;",
                 _ => "FR11;"
             });
-        }
-        private void RX1B_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right) ToggleBothMute();
-        }
-        private void RX2B_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right) ToggleBothMute();
-        }
-        private void ToggleBothMute()
-        {
-            if (!isBothMuted)
-            {
-                savedMainVol = volumeGainTrackBar.Value;
-                savedSubVol = SubvolumeGainTrackBar.Value;
-                SendCommand("AG0000;");
-                isBothMuted = true;
-            }
-            else
-            {
-                SendCommand($"AG0{savedMainVol:D3};");
-                SafeUpdateSlider(volumeGainTrackBar, textBox2, savedMainVol, savedMainVol.ToString("D3"));
-                isBothMuted = false;
-            }
         }
         private void SSB1_click(object sender, EventArgs e) { SendCommand($"SS{(mainFocused ? 0 : 1)}560000;"); }
         private void SSB2_click(object sender, EventArgs e) { SendCommand($"SS{(mainFocused ? 0 : 1)}570000;"); }
@@ -1103,7 +1097,7 @@ namespace DEVEL101
                 Color.Yellow,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak);
 
-            // Symmetric 3px white border â€” 4 filled rectangles, no gaps
+            // Symmetric 3px white border — 4 filled rectangles, no gaps
             const int t = 3;
             using var border = new SolidBrush(Color.White);
             e.Graphics.FillRectangle(border, 0, 0, btn.Width, t);                    // top
@@ -1132,7 +1126,7 @@ namespace DEVEL101
         #endregion
 
         // --- Empty stubs kept for designer compatibility ---
-        private void TextBox1_TextChanged(object sender, EventArgs e) { }
+        private void RFgain_box_TextChanged(object sender, EventArgs e) { }
         private void FixB_Click(object sender, EventArgs e) { }
         private void rfGainTrackBar_Scroll(object sender, EventArgs e) { }
 
@@ -1171,7 +1165,7 @@ namespace DEVEL101
 
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)
+        private void VolumeGain_box_TextChanged(object sender, EventArgs e)
         {
 
         }

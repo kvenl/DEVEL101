@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 3.0   (18 apr 26)
+// Version : 3.01   (20 apr 26)
 // Name    : DEVEL101 Yaesu FTDX101 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v 3.0 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v 3.01 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -514,6 +514,7 @@ namespace DEVEL101
                         int actualHz = sign == '-' ? -hz : hz;
                         int steps = actualHz / 20;
                         SafeUpdateSlider(ShiftTrackBar, Shift_box, steps, IsShiftDisplay(steps));
+                        Shift_box.ForeColor = steps != 0 ? Color.Red : Color.Gold;
                     }
                 }
             }
@@ -836,7 +837,7 @@ namespace DEVEL101
             int hz = steps * 20;
             int x = mainFocused ? 0 : 1;
             char sign = hz >= 0 ? '+' : '-';
-            UpdateTextBox(Shift_box, IsShiftDisplay(steps));
+            UpdateTextBox(Shift_box, IsShiftDisplay(steps), steps != 0 ? Color.Red : Color.Gold);
             QueueSliderCommand(ShiftTrackBar, $"IS{x}0{sign}{Math.Abs(hz):D4};");
         }
 
@@ -919,16 +920,16 @@ namespace DEVEL101
             if (e.Button == MouseButtons.Left) SendCommand($"BU{x};");
             if (e.Button == MouseButtons.Right) SendCommand($"BD{x};");
         }
-        private void PLUSB_Click(object sender, EventArgs e)
+        private void PLUSB_MouseDown(object sender, MouseEventArgs e)
         {
-            long newFreq = (mainFocused ? mainFreqHz : subFreqHz) + GetStepHz();
-            ApplyFrequencyStep(newFreq);
+            long step = e.Button == MouseButtons.Right ? 1_000_000 : GetStepHz();
+            ApplyFrequencyStep((mainFocused ? mainFreqHz : subFreqHz) + step);
         }
-        private void MINB_Click(object sender, EventArgs e)
+        private void MINB_MouseDown(object sender, MouseEventArgs e)
         {
-            long newFreq = (mainFocused ? mainFreqHz : subFreqHz) - GetStepHz();
-            if (newFreq < 0) newFreq = 0;
-            ApplyFrequencyStep(newFreq);
+            long step = e.Button == MouseButtons.Right ? 1_000_000 : GetStepHz();
+            long newFreq = (mainFocused ? mainFreqHz : subFreqHz) - step;
+            ApplyFrequencyStep(Math.Max(0, newFreq));
         }
         private void ApplyFrequencyStep(long newFreq)
         {

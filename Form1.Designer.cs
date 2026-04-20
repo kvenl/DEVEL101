@@ -916,7 +916,7 @@ namespace DEVEL101
             MINB.TabIndex = 69;
             MINB.Text = "[-]";
             MINB.UseVisualStyleBackColor = false;
-            MINB.Click += MINB_Click;
+            MINB.MouseDown += MINB_MouseDown;
             // 
             // PLUSB
             // 
@@ -932,7 +932,7 @@ namespace DEVEL101
             PLUSB.TabIndex = 70;
             PLUSB.Text = "[+]";
             PLUSB.UseVisualStyleBackColor = false;
-            PLUSB.Click += PLUSB_Click;
+            PLUSB.MouseDown += PLUSB_MouseDown;
             // 
             // LEVRESET
             // 

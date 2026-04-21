@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 3.01   (20 apr 26)
+// Version : 3.1   (21 apr 26)
 // Name    : DEVEL101 Yaesu FTDX101 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v 3.01 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v 3.1 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -857,6 +857,20 @@ namespace DEVEL101
             SendCommand($"IS{x}0+0000;");
         }
 
+        private void Width_box_Click(object sender, EventArgs e)
+        {
+            int x = mainFocused ? 0 : 1;
+            bool cwDig = currentMode == '3' || currentMode == 'C';
+            string pos = cwDig ? "11" : "20";
+            SendCommand($"SH{x}0{pos};");
+        }
+
+        private void Shift_box_Click(object sender, EventArgs e)
+        {
+            int x = mainFocused ? 0 : 1;
+            SendCommand($"IS{x}0+0000;");
+        }
+
         #endregion
 
         // =================================================================
@@ -973,8 +987,69 @@ namespace DEVEL101
             >= 50_000_000 and < 52_000_000 => "6m",
             _ => "GEN"
         };
-        private void FreqM_box_Click(object sender, EventArgs e) { SendCommand("VS0;"); }
-        private void FreqS_box_Click(object sender, EventArgs e) { SendCommand("VS1;"); }
+        private void FreqM_box_Click(object sender, EventArgs e)
+        {
+            if (mainFocused) ShowFreqEntry(mainFreqHz, true);
+            else SendCommand("VS0;");
+        }
+        private void FreqS_box_Click(object sender, EventArgs e)
+        {
+            if (!mainFocused) ShowFreqEntry(subFreqHz, false);
+            else SendCommand("VS1;");
+        }
+        private void FreqM_box_DoubleClick(object sender, EventArgs e) { }
+        private void FreqS_box_DoubleClick(object sender, EventArgs e) { }
+
+        private void ShowFreqEntry(long currentHz, bool isMain)
+        {
+            using var dlg = new Form();
+            dlg.Text = isMain ? "MAIN Frequency" : "SUB Frequency";
+            dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
+            dlg.StartPosition = FormStartPosition.CenterParent;
+            dlg.Size = new Size(260, 110);
+            dlg.MaximizeBox = false;
+            dlg.MinimizeBox = false;
+            dlg.BackColor = Color.FromArgb(30, 30, 30);
+            dlg.ForeColor = Color.Gold;
+
+            var lbl = new Label { Text = "kHz  (e.g. 14225 or 14225.5)", AutoSize = true,
+                Location = new Point(10, 12), ForeColor = Color.Gold, BackColor = Color.Transparent };
+            var tb = new TextBox
+            {
+                Text = $"{currentHz / 1_000.0:F0}",
+                Location = new Point(10, 32), Width = 220,
+                BackColor = Color.Black, ForeColor = Color.Gold,
+                Font = new Font("Courier New", 12F, FontStyle.Bold),
+                BorderStyle = BorderStyle.FixedSingle,
+                TextAlign = HorizontalAlignment.Right
+            };
+            tb.SelectAll();
+
+            var ok = new Button { Text = "OK", DialogResult = DialogResult.OK,
+                Location = new Point(10, 62), Width = 60,
+                BackColor = Color.DarkGreen, ForeColor = Color.Yellow, FlatStyle = FlatStyle.Flat };
+            var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel,
+                Location = new Point(80, 62), Width = 60,
+                BackColor = Color.DarkRed, ForeColor = Color.Yellow, FlatStyle = FlatStyle.Flat };
+
+            tb.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { dlg.DialogResult = DialogResult.OK; dlg.Close(); } };
+            tb.KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) { dlg.DialogResult = DialogResult.Cancel; dlg.Close(); } };
+
+            dlg.Controls.AddRange(new Control[] { lbl, tb, ok, cancel });
+            dlg.AcceptButton = ok;
+            dlg.CancelButton = cancel;
+            dlg.ActiveControl = tb;
+
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            string input = tb.Text.Trim().Replace(",", ".");
+            if (double.TryParse(input, System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out double khz))
+            {
+                long hz = (long)(khz * 1_000);
+                if (hz > 0) ApplyFrequencyStep(hz);
+            }
+        }
         private void SetReceiverFocus(bool focusMain)
         {
             if (_focusInitialized && mainFocused == focusMain) return;

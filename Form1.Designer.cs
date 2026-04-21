@@ -751,6 +751,7 @@ namespace DEVEL101
             Width_box.Text = "000";
             Width_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             Width_box.WordWrap = false;
+            Width_box.Click += Width_box_Click;
             // 
             // Shift_box
             // 
@@ -768,6 +769,7 @@ namespace DEVEL101
             Shift_box.Text = "000";
             Shift_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             Shift_box.WordWrap = false;
+            Shift_box.Click += Shift_box_Click;
             // 
             // SWAP
             // 

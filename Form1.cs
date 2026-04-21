@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 3.1   (21 apr 26)
+// Version : 3.11  (21 apr 26)
 // Name    : DEVEL101 Yaesu FTDX101 
 
 
@@ -18,7 +18,7 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
-        private const string AppTitle = "The101Box v 3.1 - by Kees, ON9KVE";
+        private const string AppTitle = "The101Box v 3.11 - by Kees, ON9KVE";
 
         #region CAT Command Constants
         private const string CMD_TEMP = "RM9;";
@@ -1006,7 +1006,7 @@ namespace DEVEL101
             dlg.Text = isMain ? "MAIN Frequency" : "SUB Frequency";
             dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
             dlg.StartPosition = FormStartPosition.CenterParent;
-            dlg.Size = new Size(260, 110);
+            dlg.Size = new Size(260, 145);
             dlg.MaximizeBox = false;
             dlg.MinimizeBox = false;
             dlg.BackColor = Color.FromArgb(30, 30, 30);
